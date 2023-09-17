@@ -29,7 +29,7 @@ Estribos = 2; % Estribo simple 1, estribo doble 2
 Trabas = 1; % Número de trabas
 
 %% Concrete
-if Vsims>Vu/2
+if Vsims>Vu/2 && max(abs(Pu_))<= (b*h)*fc/20
     Vc = 0;
 else
     Vc = 0.53*sqrt(fc)*b*d;

@@ -22,6 +22,7 @@ es_max = Section.ess(2);
 n_es = Section.ess(3);
 Mu_ = Section.Mu_;
 Pu_ = Section.Pu_;
+Mu2_ = Section.Mu2_;
 
 %% Compresión Pura
 Pn_c_pura = P0/1000; % tonf
@@ -99,17 +100,18 @@ phiPn_neg = phi_min_neg.*Pn_neg;
 phiPn_neg = min(phiPn_neg, phiPn_max); % tonf
 
 %% Graficar
-figure
-plot(Mn, Pn, 'color', '#460CB2', 'linewidth', 2)
-hold on
-plot(phiMn, phiPn,'color','#57A413', 'linewidth', 2)
-plot(Mu_, Pu_, 'o', 'color', '#C1330C')
-hold off
-grid on
-xlabel('Mn')
-ylabel('Pn')
-title('Interaction Diagram')
-legend('R. Nominal','R .Diseño','Solicitaciones')
+% figure
+% plot(Mn, Pn, 'color', '#460CB2', 'linewidth', 2)
+% hold on
+% plot(phiMn, phiPn,'color','#57A413', 'linewidth', 2)
+% plot(Mu_, Pu_, 'o', 'color', '#C1330C')
+% plot(Mu2_,Pu_, 'o', 'color', '#C1320A')
+% hold off
+% grid on
+% xlabel('Mn')
+% ylabel('Pn')
+% title('Interaction Diagram')
+% legend('R. Nominal','R .Diseño','Solicitaciones M3', 'Solicitaciones M2')
 
 % figure
 % vect_Mn_b = (0:1:phiMn_b).';
@@ -128,18 +130,48 @@ legend('R. Nominal','R .Diseño','Solicitaciones')
 % title('Interaction Diagram')
 % legend('R. Nominal','R .Diseño','Solicitaciones','Falla Balanceada')
 
-figure
+figure1 = figure('InvertHardcopy','off','PaperUnits','centimeters',...
+    'Color',[1 1 1]);
+set(figure1,'Position',[496 271 1138 707])
+axe1 = axes('Parent',figure1);
 plot(Mn, Pn, 'color', '#460CB2', 'linewidth', 2)
 hold on
 plot(Mn_neg,Pn_neg,'color', '#460CB2', 'linewidth', 2)
 plot(phiMn, phiPn,'color','#57A413', 'linewidth', 2)
 plot(phiMn_neg, phiPn_neg,'color','#57A413', 'linewidth', 2)
 plot(Mu_, Pu_, 'o', 'color', '#C1330C')
-hold off
+plot(Mu2_, Pu_, 'o', 'color', '#C1330C')
 grid on
-xlabel('Mn')
-ylabel('Pn')
-title('Interaction Diagram')
-legend('R. Nominal + ','R. Nominal -','R .Diseño + ','R. Diseño -','Solicitaciones')
-
+xlabel('M_n [tonf-m]')
+ylabel('P_n [tonf]')
+% title('Interaction Diagram')
+% legend('R. Nominal','','R .Diseño','','Solicitaciones')
+% Set the remaining axes properties
+annotation('textbox',...
+    [0.5638078817734 0.392857142857151 0.107374384236453 0.0761904761904769],...
+    'Color',[0.635294117647059 0.0784313725490196 0.184313725490196],...
+    'String','$$M_u, P_u$$',...
+    'LineStyle','none',...
+    'Interpreter','latex',...
+    'FontSize',24,...
+    'FitBoxToText','off');
+annotation('textbox',...
+    [0.704625041050904 0.489717261904767 0.107374384236453 0.076190476190477],...
+    'Color',[0.466666666666667 0.674509803921569 0.188235294117647],...
+    'String','$$\phi M_n, \phi P_n$$',...
+    'LineStyle','none',...
+    'Interpreter','latex',...
+    'FontSize',24,...
+    'FitBoxToText','off');
+annotation('textbox',...
+    [0.757100123152709 0.668556547619051 0.107374384236453 0.0761904761904766],...
+    'Color',[0.286274509803922 0 0.431372549019608],...
+    'String','$$M_n, P_n$$',...
+    'LineStyle','none',...
+    'Interpreter','latex',...
+    'FontSize',24,...
+    'FitBoxToText','off');
+box on
+set(axe1,'FontSize',20);
+hold off
 end
