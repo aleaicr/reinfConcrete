@@ -1,5 +1,10 @@
 function [Mn, Pn, phiMn, phiPn, phi_curvature] = getInteractionDiagram(Section)
-% This function generates the interaction diagram
+% Tarea 2 - Hormigón Armado Avanzado
+% Departamento de Obras Civiles - Universidad Técnica Federico Santa María
+% Alexis Contreras R. - Gabriel Ramos V.
+%%
+% This function generates the interaction diagram of a reinforced concrete
+% section
 
 fc = Section.fc;
 fy = Section.fy;
@@ -33,15 +38,16 @@ Pn_t_pura = -sum(as)*fy/1000; % tonf
 phiPn_t_pura = 0.9*Pn_t_pura; % tonf
 
 %% Flexión Pura
-Section.Pu = 0; % tonf
-[Mn_pura, phiMn_pura, ~, ~, ~, ~, ~, ~]= getMn(Section); % return en kgf - cm
+Section_2 = Section;
+Section_2.Pu = 0; % kgf
+[Mn_pura, phiMn_pura, ~, ~, ~, ~, ~, ~]= getMn(Section_2); % return en kgf - cm
 Mn_pura = Mn_pura/1000/100; % tonf
 phiMn_pura = phiMn_pura/1000/100; %tonf
 
 %% Falla Balanceada
 es_b = 0.002;
-d_last = max(d); % cm
-c_b = d_last*ecu/(ecu+es_b); % cm
+% d_last = max(d); % cm
+c_b = max(d)*ecu/(ecu+es_b); % cm
 ess_b = (c_b-d)/c_b*ecu; 
 phi_b = phi(min(ess_b));
 sigma_steel_b = sigmaReinf(ess_b,fy,Es); % kgf/cm2

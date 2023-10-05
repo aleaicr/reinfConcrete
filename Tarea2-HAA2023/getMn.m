@@ -1,8 +1,7 @@
-function [Mn, Pn, phi_val, phi_curvature] = getMn_esBased(Section)
-% This function determines the Mn of a reinforced concrete section based on
-% the desired "most deformed steel layer" parameter 'es'
+function [Mn, phiMn, phi_val, f_steel, Cc, es, c, sigma_Reinf] = getMn(Section)
+% This function determines the Mn of a reinforced concrete section
 
-% Extract variables from Section
+% Extract variables from frameData
 fc = Section.fc; % kgf/cm^2
 fy = Section.fy; % kgf/cm^2
 Es = Section.Es;
@@ -20,10 +19,19 @@ as = Section.as;
 % P0 = Section.P0;
 PC = Section.PC;
 beta1_val = Section.beta1_val;
-es_eval = Section.es_eval;
 
 % Neutral Axis depth (c)
-c = max(d)*ecu/(ecu+es_eval);
+syms c_
+assume(c_, 'positive');
+es = (c_ - d)/c_*ecu;
+eqn = 0.85*fc*beta1_val*c_*b + sum(as.*sigmaReinf(es,fy,Es)) - Pu;
+c = double(solve(eqn,c_)); % cm
+if ~(c > 0)
+    assume(c_, 'negative')
+    es = (c_ - d)/c_*ecu;
+    eqn = 0.85*fc*beta1_val*c_*b + sum(as.*sigmaReinf(es,fy,Es)) - Pu;
+    c = double(solve(eqn,c_)); % cm
+end
 
 % Reinforcement layers deformation
 es = (c - d)/c*ecu; % -
@@ -35,9 +43,8 @@ Cc = 0.85*fc*beta1_val*c*b; % kgf                                           % Co
 
 % Flexural Strength of the Section
 Mn = Cc*(PC - beta1_val*c/2) + sum((PC - d).*f_steel); % kgf-cm             % Nominal flexural strength
-Pn = Cc + sum(f_steel);
 phi_val = phi(min(es));                                                     % Strength reduction factor
-phi_curvature = ecu/c;
+phiMn = phi_val*Mn; % kgf-cm                                                % Design flexural strength
 
 end
 

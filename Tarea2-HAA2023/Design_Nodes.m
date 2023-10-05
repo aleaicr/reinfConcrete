@@ -20,20 +20,23 @@ h = 60; % cm                                                                % He
 r = 5; % cm                                                                 % Recubrimiento
 
 % Reinforcement
-nBars = [4; 4];                                                          % Number of bars
-diams = [2.2; 2.2]; % cm
+
+nBars = [6; 2; 2; 2; 2; 6];
+% nBars = [5; 2; 2; 2; 5];                                                          % Number of bars
+diametro_oficial = 2.2;
+diams = diametro_oficial*ones(length(nBars),1); % cm
 % Podemos definid "d" (depths) para la profundidad de cada capa, por si
 % vamos a tomar dos tipos de barras para una misma capa (abría que definir
 % uno mismo "d" y borrar el que se calcula abajo)
 
 % Axial loading
-Pu = 20*1000; % kgf
+Pu = 0; % kgf
 
 % ecu
 ecu = 0.003;
 
 % lambda
-lambda = 1;                                                              % lambda = 1.25 --> Mpr en vez de Mn, lambda = 1 --> Mn
+lambda = 1.25;                                                              % lambda = 1.25 --> Mpr en vez de Mn, lambda = 1 --> Mn
 
 %% Previous Calculations
 nLayers = length(diams);                                                    % Number of Layers of longitudinal reinforcement
@@ -102,12 +105,10 @@ disp(tabla)
 
 %% Get Mn_neg
 [Mn, phiMn, phi_val, f_steel, Cc, es, c, sigma_Reinf] = getMn_neg(Section); % kgf - cm
-phi_curvature = ecu/c;
 
 %% Display Results_neg
 disp('Momento Negativo')
 fprintf('\n c = %.2f [cm]\n \n', c)
-fprintf('\n phi_curvature= %.2f [cm]\n \n', phi_curvature)
 tabla = table();
 tabla.d = h-flip(d);
 tabla.as = flip(as);
@@ -124,5 +125,11 @@ tabla.Phi = phi_val;
 tabla.phiMn_tonf_m = phiMn/1000/100;
 disp(tabla)
 
-
+tabla = table();
+tabla.Mpr = Mn/1000/100;
+tabla.T = f_steel(end)/1000;
+tabla.Cs = f_steel(1)/1000;
+tabla.Cc = Cc/1000;
+tabla.Tprima = f_steel(1)/1000+Cc/1000;
+disp(tabla)
 

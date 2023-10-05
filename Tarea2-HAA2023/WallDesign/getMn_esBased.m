@@ -31,10 +31,11 @@ es = (c - d)/c*ecu; % -
 % Sectional Forces
 sigma_Reinf = sigmaReinf(es,fy,Es); % kgf/cm^2                              % Steel reinforce bars layers stress
 f_steel = as.*sigma_Reinf; % kgf                                            % Steel reinforce bars layers forces
-Cc = 0.85*fc*beta1_val*c*b; % kgf                                           % Concrete force
+[Cc_vect, Cc_centroid] = computeCc(b, h, fc, c, beta1_val); % kgf, cm       % Vector of contributions of each zone of concrete to the nominal flexural strength 
+Cc = sum(Cc_vect); % kgf                                                    % Concrete force
 
 % Flexural Strength of the Section
-Mn = Cc*(PC - beta1_val*c/2) + sum((PC - d).*f_steel); % kgf-cm             % Nominal flexural strength
+Mn = Cc*(PC - Cc_centroid) + sum((PC - d).*f_steel); % kgf-cm               % Nominal flexural strength
 Pn = Cc + sum(f_steel);
 phi_val = phi(min(es));                                                     % Strength reduction factor
 phi_curvature = ecu/c;
