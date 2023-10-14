@@ -2,6 +2,7 @@ function [Mn, Pn, phiMn, phiPn, phi_curvature] = getInteractionDiagram(Section)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
+%
 %%
 % This function generates the interaction diagram of a reinforced concrete
 % section
@@ -51,17 +52,17 @@ ess_b = (c_b-d)/c_b*ecu;
 phi_b = phi(min(ess_b));
 sigma_steel_b = sigmaReinf(ess_b,fy,Es); % kgf/cm2
 Fsteel_b = as.*sigma_steel_b; % kgf
-[Cc_b, Cc_centroid] = concreteForce(b, h, fc, beta1_val, c_b); % kgf
+[Cc_b, Cc_centroid] = computeCc(b, h, fc, beta1_val, c_b); % kgf
 Mn_b = (sum(Cc_b)*(PC-Cc_centroid) + sum(Fsteel_b.*(PC-d)))/1000/100; % tonf
 phiMn_b = Mn_b*phi_b; %tonf
 Pn_b = (sum(Cc_b) + sum(Fsteel_b))/1000; % tonf
 phiPn_b = phi_b*Pn_b; % tonf
 
-%% For Loop
+%% Complete interaction diagram computing (all of above was not necessary)
 es_vect = (es_min:(es_max-es_min)/(n_es-1):es_max).';
 es_length = length(es_vect);
-Mn = zeros(es_length,1);
-Pn = zeros(es_length,1);
+Mn = zeros(es_length,1); % kgf
+Pn = zeros(es_length,1); % kgf
 phi_min = zeros(es_length,1);
 phi_curvature = zeros(es_length,1);
 for i = 1:length(es_vect)

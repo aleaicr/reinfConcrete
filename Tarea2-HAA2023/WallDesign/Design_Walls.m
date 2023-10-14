@@ -28,7 +28,7 @@ d = [5; 45; 345; 90; 200]; % cm                                             % De
 ecu = 0.003;
 
 % lambda
-lambda = 1;    
+lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)
 
 % Ultimate Moments and Axial Loads
 Mu_ = [5.37; 2.26; 0.97; -5.39; -2.25; -0.94; 0.03; 0.01; 0.07; -0.04; -0.01; -0.05; 0.03; 0.02; 0.08; -0.05; -0.01; -0.04; 5.37; 2.26; 0.97; -5.39; -2.25; -0.94; -0.01; 0.00; 0.02; -0.01; 0.00; 0.02; -0.01; 0.00; 0.02; 4.66; 1.96; 1.11; -4.85; -1.90; -0.80; -0.06; 0.04; 0.21; -0.12; 0.02; 0.10; -0.12; 0.06; 0.31; -0.18; 0.04; 0.21; 4.60; 1.98; 1.21; -4.91; -1.88; -0.69; -0.17; 0.06; 0.29; -0.14; 0.05; 0.24; -0.14; 0.05; 0.23];
@@ -41,12 +41,12 @@ n_es = 5000;                                                                % N�
 
 %% Previous Calculations
 % Reinf Layers
-nLayers = size(diams);                                                    % Number of Layers of longitudinal reinforcement
+nLayers = size(diams);                                                      % Number of Layers of longitudinal reinforcement
 layers = (1:1:nLayers).';                                                   % Layer IDs
 fy = lambda*fy;
 
 % Concrete zones
-nHeight = length(h);
+nHeight = length(h);            % Notar que nHeight = nWidth = nZones
 nWidth = length(b);
 
 % Area of concrete for each layer
@@ -55,7 +55,7 @@ ag = sum(ag_zones); % Total area of concrete
 
 % Area of steel for each layer
 as_types = pi*(nBars.*(diams.'/10).^2); % cm^2
-as = sum(as_types,2);
+as = sum(as_types,2);   % vector of as in each layer of reinforcement
 
 % Axial Strength of the Section
 P0 = 0.85*fc*ag + sum(as)*(fy - fc); % kgf
@@ -66,9 +66,6 @@ PC = (0.85*fc*sum(b.*h.^2)/2 + sum(as.*d*(fy - fc)))/(P0); % cm
 
 % beta1
 beta1_val = beta1(fc);
-
-% Fibra más traccionada
-d_ = max(d); % solo porq col es simétrica, funciona para ambos lados.
 
 %% Save Data into Struct
 Section = struct();
@@ -98,7 +95,7 @@ Section.Pu_ = Pu_;
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
 % Obtener datos Mn
 Section2 = Section;
-Section2.Pu = min(Pu_)*1000;
+Section2.Pu = min(Pu_)*1000; % kgf
 [Mn_col, phiMn_col, phi_val_col, ~, ~, ~, ~, ~] = getMn(Section2); % kgf y cm
 Mn_col = Mn_col/1000/100; % tonf-m
 phiMn_col = phiMn_col/1000/100; % tonf-m

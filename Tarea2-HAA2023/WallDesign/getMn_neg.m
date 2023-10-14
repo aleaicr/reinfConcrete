@@ -1,4 +1,8 @@
 function [Mn, phiMn, phi_val, f_steel, Cc, es, c, sigma_Reinf] = getMn_neg(Section)
+% Tarea 2 - Hormigón Armado Avanzado
+% Departamento de Obras Civiles - Universidad Técnica Federico Santa María
+% Alexis Contreras R. - Gabriel Ramos V.
+%%
 % This function determines the Mn of a reinforced concrete section
 
 % Extract variables from frameData
@@ -29,12 +33,14 @@ PC = h-PC;
 syms c_
 assume(c_, 'positive');
 es = (c_ - d)/c_*ecu;
-eqn = 0.85*fc*beta1_val*c_*b + sum(as.*sigmaReinf(es,fy,Es)) - Pu;
+[Cc_vect, ~] = computeCc(b, h, fc, c_, beta1_val); % kgf
+eqn = sum(Cc_vect) + sum(as.*sigmaReinf(es,fy,Es)) - Pu; % kgf, cm
 c = double(solve(eqn,c_)); % cm
 if ~(c > 0)
     assume(c_, 'negative')
-    es = (c_ - d)/c_*ecu;
-    eqn = 0.85*fc*beta1_val*c_*b + sum(as.*sigmaReinf(es,fy,Es)) - Pu;
+    es = (c_ - d)/c_*ecu; % 
+    [Cc_vect, ~] = computeCc(b, h, fc, c_, beta1_val); % kgf
+    eqn = sum(Cc_vect) + sum(as.*sigmaReinf(es,fy,Es)) - Pu; % kgf, cm
     c = double(solve(eqn,c_)); % cm
 end
 
@@ -50,5 +56,6 @@ Cc = 0.85*fc*beta1_val*c*b; % kgf                                           % Co
 Mn = Cc*(PC - beta1_val*c/2) + sum((PC - d).*f_steel); % kgf-cm             % Nominal flexural strength
 phi_val = phi(min(es));                                                     % Strength reduction factor
 phiMn = phi_val*Mn; % kgf-cm                                                % Design flexural strength
+phi_curvature = es/(d_-c);
 
 end
