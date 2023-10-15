@@ -145,6 +145,7 @@ set(figure1,'Position',[496 271 1138 707])
 axe1 = axes('Parent',figure1);
 plot(Mn, Pn, 'color', '#460CB2', 'linewidth', 2)
 hold on
+yline(0.35*fc*sum(b.*h),'--r',"$$0.35f'_cA_g$$",'Interpreter', 'latex')
 plot(Mn_neg,Pn_neg,'color', '#460CB2', 'linewidth', 2)
 plot(phiMn, phiPn,'color','#57A413', 'linewidth', 2)
 plot(phiMn_neg, phiPn_neg,'color','#57A413', 'linewidth', 2)
@@ -189,6 +190,7 @@ figure
 plot(Mn,phi_curvature)
 hold on
 plot(Mn_neg, phi_curvature_neg)
+hold off
 xlabel('Mn [tonf]')
 ylabel('\phi curvature')
 
