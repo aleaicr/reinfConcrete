@@ -1,4 +1,4 @@
-function [Mn, phiMn, phi_val, f_steel, Cc, es, c, sigma_Reinf,phi_curvature] = getMn(Section)
+function [Mn, phiMn, phi_val, f_steel, Cc, es, c, sigma_Reinf, phi_curvature] = getMn(Section)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.

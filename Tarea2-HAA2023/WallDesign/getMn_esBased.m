@@ -50,7 +50,7 @@ Mn = Cc*(PC - Cc_centroid) + sum((PC - d).*f_steel); % kgf-cm               % No
 Pn = Cc + sum(f_steel);
 phi_val = phi(min(es));                                                     % Strength reduction factor
 phi_curvature = min(es)/(d_-c);
-ec = phi_curvature*c;
+% ec = phi_curvature*c;
 
 end
 

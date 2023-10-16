@@ -2,13 +2,17 @@
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
-
+%
+% Notes
+% * The functions getInteractionDiagram, getMn, getMn_esBased; are evaluated
+% for this T-shaped wall only (I never tried more sections), but I think
+% that all is in function of the vectors/matrices sizes in the input
 %% Init
 clear variables
 close all
 clc
 
-%% Inputs C55/55 (Columna Piso 1 Exterior)
+%% Inputs T-shaped Wall
 % Materials
 fc = 300; % kgf/cm2                                                         % Concrete's strength
 fy = 4200; % kgf/cm^2                                                       % Steel's strength
@@ -17,7 +21,7 @@ Es = 2.1*10^6; %kgf/cm^2                                                    % St
 % Section geometry
 b = [300; 50]; % cm                                                         % Concrete section zones widths
 h = [50; 300]; % cm                                                         % Concrete section zones heights
-% r = 5; % cm
+% r = 5; % cm                                                                 % Cover thickness
 
 % Reinforcement
 diams = [25; 22];   % cm                                                    % Diameter of bars diametro_barras_tipo_1, diam2, diam3
@@ -28,9 +32,9 @@ d = [5; 45; 345; 90; 200]; % cm                                             % De
 ecu = 0.003;
 
 % lambda
-lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)
+lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
 
-% Ultimate Moments and Axial Loads
+% Ultimate Moments and Axial Loads (tonf)
 Mu_ = [5.37; 2.26; 0.97; -5.39; -2.25; -0.94; 0.03; 0.01; 0.07; -0.04; -0.01; -0.05; 0.03; 0.02; 0.08; -0.05; -0.01; -0.04; 5.37; 2.26; 0.97; -5.39; -2.25; -0.94; -0.01; 0.00; 0.02; -0.01; 0.00; 0.02; -0.01; 0.00; 0.02; 4.66; 1.96; 1.11; -4.85; -1.90; -0.80; -0.06; 0.04; 0.21; -0.12; 0.02; 0.10; -0.12; 0.06; 0.31; -0.18; 0.04; 0.21; 4.60; 1.98; 1.21; -4.91; -1.88; -0.69; -0.17; 0.06; 0.29; -0.14; 0.05; 0.24; -0.14; 0.05; 0.23];
 Pu_ = -[-265.90; -264.40; -262.90; -274.84; -273.34; -271.84; -237.75; -236.25; -234.76; -302.99; -301.49; -299.99; -399.84; -397.85; -395.85; -465.08; -463.08; -461.08; -427.99; -425.99; -424.00; -436.93; -434.93; -432.94; -476.98; -474.99; -472.99; -420.57; -418.24; -415.92; -400.77; -398.78; -396.78; -238.79; -237.29; -235.79; -263.18; -261.68; -260.18; -215.77; -214.28; -212.78; -286.19; -284.69; -283.20; -365.37; -363.38; -361.38; -435.79; -433.79; -431.80; -388.39; -386.39; -384.39; -412.78; -410.78; -408.78; -441.33; -439.33; -437.34; -390.42; -388.09; -385.76; -371.41; -369.41; -367.41];
 
@@ -50,12 +54,12 @@ nHeight = length(h);            % Notar que nHeight = nWidth = nZones
 nWidth = length(b);
 
 % Area of concrete for each layer
-ag_zones = b.*h; % Area of concrete per zone
-ag = sum(ag_zones); % Total area of concrete
+ag_zones = b.*h; % cm^2                                                     % Area of concrete per zone
+ag = sum(ag_zones); % cm^2                                                  % Total area of concrete
 
 % Area of steel for each layer
 as_types = pi*(nBars.*(diams.'/10).^2); % cm^2
-as = sum(as_types,2);   % vector of as in each layer of reinforcement
+as = sum(as_types,2); % cm^2                                                % Vector of as in each layer of reinforcement
 
 % Axial Strength of the Section
 P0 = 0.85*fc*ag + sum(as)*(fy - fc); % kgf
@@ -93,7 +97,8 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % Obtener Datos y Graficarlo
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-% Obtener datos Mn
+
+%% getMn (minimum axial load)
 Section2 = Section;
 Section2.Pu = min(Pu_)*1000; % kgf
 [Mn_col, phiMn_col, phi_val_col, ~, ~, ~, ~, ~] = getMn(Section2); % kgf y cm
@@ -101,47 +106,22 @@ Mn_col = Mn_col/1000/100; % tonf-m
 phiMn_col = phiMn_col/1000/100; % tonf-m
 
 %% Display
-fprintf('-----------Diseño C55/55-----------\n')
-fprintf('-----------Diseño Flexo-Compresión-----------\n')
-% Check Acero requerido
-Mu = max(max(abs(Mu_)),max(abs(Mu2_)));
-As_req = 0.85*fc/fy*b*d_*(1-sqrt(1-2.353*Mu*1000*100/(0.9*b*d_^2*fc)));
-fprintf('\nArmadura requerida As_req = %.2f [cm2]\n', As_req)
-
+fprintf('-----------Wall Design-----------\n')
+fprintf('Note that this Wall is a T-Shaped Wall\n\n')
+fprintf('-----------Flexure and Axial Design-----------\n')
 fprintf('\nArmadura dispuesta-----------\n')
 for i = 1:length(nBars)
-    fprintf('Refuerzo %.0f: %.0fphi%.0f a %.0f del top, area = %.2f [cm^2]\n',i,nBars(i),diams(i)*10,d(i), as(i))
+    fprintf('Refuerzo %.0f: %.0fphi%.0f + %.0fphi%.0f a %.0f del top, area = %.2f [cm^2]\n',i, nBars(i,1), diams(1),nBars(i,2), diams(2), d(i), as(i))
 end
 % Check Geomería
-fprintf('\nCheck geometría-----------\n')
-if min(b,h) > 30
-    fprintf('b > 30cm OK\n')
-else
-    fprintf('b < 30cm NO OK\n')
-end
-if min(b,h)/max(b,h) > 0.
-    fprintf('b/h > 0.4 OK\n')
-else
-    fprintf('b/h < 0.4 NO OK\n')
-end
 
 % Check Rango Cuantia
-fprintf('\ncheck cuantia entre 0.01 y 0.06-----------\n')
+fprintf('\ncheck cuantia_min > 0.0025-----------\n')
 cuantia = sum(as)/(b*h);
-if cuantia > 0.01 && cuantia < 0.06
+if cuantia > 0.0025
     fprintf('Cuantia = %.4f OK\n', cuantia);
 else
     fprintf('Cuantia = %.2f NO OK\n', cuantia);
-end
-
-% Cuantia minima
-fprintf('\ncheck cuantia mayor a minima-----------\n')
-As_min = max(0.8*sqrt(fc)/fy*b*d_,14/fy*b*d_);
-cuantia_min = As_min/(b*h);
-if cuantia > cuantia_min
-    fprintf('Cuantia mayor a cuantia minima = %0.4f OK\n',cuantia_min)
-else
-    fprintf('Cuantia no es mayor a cuantía minima= %0.4f no OK\n', cuantia_min)
 end
 
 % check hx

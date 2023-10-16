@@ -4,25 +4,41 @@ function [Mn, Pn, phiMn, phiPn, phi_curvature] = getInteractionDiagram(Section)
 % Alexis Contreras R. - Gabriel Ramos V.
 %
 %%
-% This function generates the interaction diagram of a reinforced concrete
-% section
+% This function generates the Interaction Diagram (DI) and the 
+% Moment-Curvature (M-C) diagrams of a reinforced concrete section
+%
+% INPUTS
+% Section: (Struct) All the sections properties that are disarranged in the
+% first section of this script
+%
+% OUTPUTS
+% Mn: (double vector)
+% Pn
+% phiMn
+% phiPn
+% phi_curvature
+%
+% Notes
+% 
 
+
+%% Disarrange
 fc = Section.fc;
-fy = Section.fy;
-Es = Section.Es;
+% fy = Section.fy;
+% Es = Section.Es;
 b = Section.b;
 h = Section.h;
 % r = Section.r;
 % nBars = Section.nBars;
 % diams = Section.diams;
-ecu = Section.ecu;
+% ecu = Section.ecu;
 % nLayers = Section.nLayers;
 % layers = Section.layers;
 d = Section.d;
 as = Section.as;
 P0 = Section.P0; % kgf
 PC = Section.PC;
-beta1_val = Section.beta1_val;
+% beta1_val = Section.beta1_val;
 es_min = Section.ess(1);
 es_max = Section.ess(2);
 n_es = Section.ess(3);
@@ -30,33 +46,33 @@ Mu_ = Section.Mu_;
 Pu_ = Section.Pu_;
 
 %% Compresión Pura
-Pn_c_pura = P0/1000; % tonf
-phiPn_c_Pura = Pn_c_pura*0.65; % tonf
+% Pn_c_pura = P0/1000; % tonf
+% phiPn_c_Pura = Pn_c_pura*0.65; % tonf
 
 %% Tracción Pura
-Pn_t_pura = -sum(as)*fy/1000; % tonf
-phiPn_t_pura = 0.9*Pn_t_pura; % tonf
+% Pn_t_pura = -sum(as)*fy/1000; % tonf
+% phiPn_t_pura = 0.9*Pn_t_pura; % tonf
 
 %% Flexión Pura
-Section_2 = Section;
-Section_2.Pu = 0; % kgf
-[Mn_pura, phiMn_pura, ~, ~, ~, ~, ~, ~]= getMn(Section_2); % return en kgf - cm
-Mn_pura = Mn_pura/1000/100; % tonf
-phiMn_pura = phiMn_pura/1000/100; %tonf
+% Section_2 = Section;
+% Section_2.Pu = 0; % kgf
+% [Mn_pura, phiMn_pura, ~, ~, ~, ~, ~, ~]= getMn(Section_2); % return en kgf - cm
+% Mn_pura = Mn_pura/1000/100; % tonf
+% phiMn_pura = phiMn_pura/1000/100; %tonf
 
 %% Falla Balanceada
-es_b = 0.002;
+% es_b = 0.002;
 % d_last = max(d); % cm
-c_b = max(d)*ecu/(ecu+es_b); % cm
-ess_b = (c_b-d)/c_b*ecu; 
-phi_b = phi(min(ess_b));
-sigma_steel_b = sigmaReinf(ess_b,fy,Es); % kgf/cm2
-Fsteel_b = as.*sigma_steel_b; % kgf
-[Cc_b, Cc_centroid] = computeCc(b, h, fc, beta1_val, c_b); % kgf
-Mn_b = (sum(Cc_b)*(PC-Cc_centroid) + sum(Fsteel_b.*(PC-d)))/1000/100; % tonf
-phiMn_b = Mn_b*phi_b; %tonf
-Pn_b = (sum(Cc_b) + sum(Fsteel_b))/1000; % tonf
-phiPn_b = phi_b*Pn_b; % tonf
+% c_b = max(d)*ecu/(ecu+es_b); % cm
+% ess_b = (c_b-d)/c_b*ecu; 
+% phi_b = phi(min(ess_b));
+% sigma_steel_b = sigmaReinf(ess_b,fy,Es); % kgf/cm2
+% Fsteel_b = as.*sigma_steel_b; % kgf
+% [Cc_b, Cc_centroid] = computeCc(b, h, fc, beta1_val, c_b); % kgf
+% Mn_b = (sum(Cc_b)*(PC-Cc_centroid) + sum(Fsteel_b.*(PC-d)))/1000/100; % tonf
+% phiMn_b = Mn_b*phi_b; %tonf
+% Pn_b = (sum(Cc_b) + sum(Fsteel_b))/1000; % tonf
+% phiPn_b = phi_b*Pn_b; % tonf
 
 %% Complete interaction diagram computing (all of above was not necessary)
 es_vect = (es_min:(es_max-es_min)/(n_es-1):es_max).';
@@ -76,15 +92,15 @@ phiPn = phi_min.*Pn;
 
 %% Juntarlas
 % CP,TP,FP,FB
-markedMn = [0;0;Mn_pura;Mn_b]; % tonf-m
-markedPn = [Pn_c_pura; Pn_t_pura; 0; Pn_b]; % tonf
-markedphiMn = [0; 0; phiMn_pura; phiMn_b]; % tonf-m
-markedphiPn = [phiPn_c_Pura; phiPn_t_pura; 0; phiPn_b]; %tonf
+% markedMn = [0;0;Mn_pura;Mn_b]; % tonf-m
+% markedPn = [Pn_c_pura; Pn_t_pura; 0; Pn_b]; % tonf
+% markedphiMn = [0; 0; phiMn_pura; phiMn_b]; % tonf-m
+% markedphiPn = [phiPn_c_Pura; phiPn_t_pura; 0; phiPn_b]; %tonf
 
 %% Corregir phiPn por phiPn_max
 phiPn_max = 0.8*0.65*P0/1000; % tonf
 phiPn = min(phiPn, phiPn_max); % tonf
-markedphiPn = min(markedphiPn, phiPn_max); % tonf
+% markedphiPn = min(markedphiPn, phiPn_max); % tonf
 
 %% Para el lado negativo
 Section_neg = Section;
