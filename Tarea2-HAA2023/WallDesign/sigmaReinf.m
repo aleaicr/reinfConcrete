@@ -14,15 +14,15 @@ function sigma = sigmaReinf(es, fy, Es)
 % (c is the depth of the neutral axis). This, for use in the force
 % equilibrium of the section to determine the value of 'c'.
 % * 'es' can be a double vector 
-    if isa(es,'sym')
-        sigma = sym(zeros(length(es),1));                                   % Symbolic vector of symbolic piecewises of a symbolic variable
-        for i = 1:length(es)
-            sigma(i) = piecewise(abs(es(i)) < fy/Es, es(i)*Es, abs(es(i)) >= fy/Es, sign(es(i))*fy);
-        end
-    elseif isa(es,'double')
-        sigma = zeros(length(es),1);
-        condition = abs(es) < fy/Es;
-        sigma(condition) = es(condition)*Es;
-        sigma(~condition) = sign(es(~condition))*fy;
+if isa(es,'sym')
+    sigma = sym(zeros(length(es),1));                                   % Symbolic vector of symbolic piecewises of a symbolic variable
+    for i = 1:length(es)
+        sigma(i) = piecewise(abs(es(i)) < fy/Es, es(i)*Es, abs(es(i)) >= fy/Es, sign(es(i))*fy);
     end
+elseif isa(es,'double')
+    sigma = zeros(length(es),1);
+    condition = abs(es) < fy/Es;
+    sigma(condition) = es(condition)*Es;
+    sigma(~condition) = sign(es(~condition))*fy;
+end
 end

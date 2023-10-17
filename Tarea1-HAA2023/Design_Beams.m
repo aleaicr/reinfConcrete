@@ -1,4 +1,4 @@
-%% Diseño Col55/55 Piso 1
+%% Diseño Vigas Pisos 1, 2 y 3
 % Tarea 1 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
@@ -8,7 +8,7 @@ clear variables
 close all
 clc
 
-%% Inputs C55/55 (Columna Piso 1 Exterior)
+%% Inputs Viga
 % Materials
 fc = 300; % kgf/cm2
 fy = 4200; % kgf/cm^2
@@ -66,6 +66,8 @@ beta1_val = beta1(fc);
 
 % Fibra más traccionada
 d_ = max(d); % solo porq col es simétrica, funciona para ambos lados.
+% es(d == d_) --> es el 'strain' de la capa de acero más traccionada, para
+% evaluar el phi(es_min)
 
 %% Save Data into Struct
 Section = struct();

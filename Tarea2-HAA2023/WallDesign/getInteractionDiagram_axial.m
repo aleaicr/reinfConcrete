@@ -1,4 +1,4 @@
-function [Mn, Pn, phiMn, phiPn, phi_curvature] = getInteractionDiagram(Section)
+function [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
@@ -22,65 +22,71 @@ function [Mn, Pn, phiMn, phiPn, phi_curvature] = getInteractionDiagram(Section)
 % 
 
 %% Disarrange
-fc = Section.fc;
-% fy = Section.fy;
+fc = Section.fc; % kgf/cm2
+fy = Section.fy; % kgf/cm2
 % Es = Section.Es;
-b = Section.b;
-h = Section.h;
+b = Section.b; % cm
+h = Section.h; % cm
 % r = Section.r;
 % nBars = Section.nBars;
 % diams = Section.diams;
 % ecu = Section.ecu;
 % nLayers = Section.nLayers;
 % layers = Section.layers;
-d = Section.d;
-as = Section.as;
+d = Section.d; % cm
+as = Section.as; %cm2
 P0 = Section.P0; % kgf
-PC = Section.PC;
+PC = Section.PC; % cm
 % beta1_val = Section.beta1_val;
-es_min = Section.ess(1);
-es_max = Section.ess(2);
-n_es = Section.ess(3);
+% es_min = Section.ess(1);
+% es_max = Section.ess(2);
+% n_es = Section.ess(3);
 Mu_ = Section.Mu_;
 Pu_ = Section.Pu_;
+n_N = Section.n_N;
 
 %% previous
-es_vect = (es_min:(es_max-es_min)/(n_es-1):es_max).';
-es_vect(es_vect==0) = [];
-es_length = length(es_vect);
 Section_neg = Section;
 Section_neg.as = flip(as); % cm2
 Section_neg.d = sum(h) - flip(d); % cm
 Section_neg.PC = sum(h) - PC; % cm
 
+% compresión pura
+Pcompr = P0; %kgf
+
+% tracción pura
+Ptracc = -sum(as)*fy; % kgf
+
+% axial load range
+% N_step = (Pcompr-Ptracc)/(n_N-1);
+N_vect = (Ptracc:(Pcompr-Ptracc)/(n_N-1):Pcompr).'; %kgf
+N_vect(N_vect==0) = [];
+N_length = length(N_vect); % debería ser n_N + 2
+Pn = N_vect; % kgf
+Pn_neg = N_vect; %kgf
+
 %% Interaction diagram computation
 % init variables
-Mn = zeros(es_length,1); % kgf
-Pn = zeros(es_length,1); % kgf
-phi_min = zeros(es_length,1);
-phi_curvature = zeros(es_length,1);
+Mn = zeros(N_length,1); % kgf-cm
+phi_min = zeros(N_length,1);
+Mn_neg = zeros(N_length,1); %kgf-cm
+phi_min_neg = zeros(N_length,1);
 
-Mn_neg = zeros(es_length,1);
-Pn_neg = zeros(es_length,1);
-phi_min_neg = zeros(es_length,1);
-phi_curvature_neg = zeros(es_length,1);
-
-% positive side
-for i = 1:length(es_vect)
-    Section.es_val = es_vect(i);
-    [Mn(i), Pn(i), phi_min(i), phi_curvature(i)] = getMn_esBased(Section); % return en kgf y cm
+% computation of Mn in function of axial loading
+for i = 1:N_length
+    Section.N = N_vect(i); % kgf
+    Section_neg.N = N_vect(i); % kgf
+    disp(N_vect(i))
+    [Mn(i), phi_min(i)] = getMn_axial(Section); % return en kgf y cm
+    disp(N_vect(i))
+    [Mn_neg(i), phi_min_neg(i)] = getMn_axial(Section_neg); % return en kgf y cm
 end
 
+% Cambio de unidades
 Mn = Mn/1000/100; % tonf-m
 Pn = Pn/1000; % tonf
 phiMn = phi_min.*Mn;
 phiPn = phi_min.*Pn;
-
-% Negative side
-for i = 1:es_length
-    Section_neg.es_val = es_vect(i);
-    [Mn_neg(i), Pn_neg(i), phi_min_neg(i), phi_curvature_neg(i)] = getMn_esBased(Section_neg); % return en kgf y cm
-end
 
 Mn_neg = -Mn_neg/1000/100; % tonf-m
 Pn_neg = Pn_neg/1000; % tonf
@@ -100,12 +106,12 @@ set(figure1,'Position',[496 271 1138 707])
 axe1 = axes('Parent',figure1);
 plot(Mn, Pn, 'color', '#460CB2', 'linewidth', 2)
 hold on
+yline(phiPn_max,'--r',"$$\phi P_{n,max}$$",'Interpreter', 'latex')
 yline(0.35*fc*sum(b.*h)/1000,'--r',"$$0.35f'_cA_g$$",'Interpreter', 'latex')
-plot(Mn_neg,Pn_neg,'color', '#460CB2', 'linewidth', 2)
+plot(Mn_neg, Pn_neg,'color', '#460CB2', 'linewidth', 2)
 plot(phiMn, phiPn,'color','#57A413', 'linewidth', 2)
 plot(phiMn_neg, phiPn_neg,'color','#57A413', 'linewidth', 2)
 plot(Mu_, Pu_, 'o', 'color', '#C1330C')
-% plot(Mu2_, Pu_, 'o', 'color', '#C1330C')
 grid on
 xlabel('M_n [tonf-m]')
 ylabel('P_n [tonf]')
@@ -139,14 +145,5 @@ annotation('textbox',...
 box on
 set(axe1,'FontSize',20);
 hold off
-
-% % Moment - Curvature
-% figure
-% plot(phi_curvature, Mn)
-% hold on
-% plot(phi_curvature_neg, Mn_neg)
-% hold off
-% xlabel('\phi curvature')
-% ylabel('Mn [tonf]')
 
 end
