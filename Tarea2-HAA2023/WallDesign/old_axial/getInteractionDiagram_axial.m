@@ -76,9 +76,9 @@ phi_min_neg = zeros(N_length,1);
 for i = 1:N_length
     Section.N = N_vect(i); % kgf
     Section_neg.N = N_vect(i); % kgf
-    disp(N_vect(i))
+%     disp(N_vect(i))
     [Mn(i), phi_min(i)] = getMn_axial(Section); % return en kgf y cm
-    disp(N_vect(i))
+%     disp(N_vect(i))
     [Mn_neg(i), phi_min_neg(i)] = getMn_axial(Section_neg); % return en kgf y cm
 end
 

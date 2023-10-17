@@ -19,14 +19,13 @@ fy = 4200; % kgf/cm^2                                                       % St
 Es = 2.1*10^6; %kgf/cm^2                                                    % Steel reinforce modulus of elasticity
 
 % Section geometry
-b = [200; 30]; % cm                                                         % Concrete section zones widths
-h = [30; 290]; % cm                                                         % Concrete section zones heights
-% r = 5; % cm                                                               % Cover thickness
+b = [790; 50]; % cm                                                         % Concrete section zones widths
+h = [30; 640]; % cm                                                         % Concrete section zones heights
 
 % Reinforcement
-diams = [25; 0];   % cm                                                     % Diameter of bars diametro_barras_tipo_1, diam2, diam3
-nBars = [6 0; 4 0];                                                         % Number of bars per layer
-d = [15; (290+30-15)]; % cm                                                 % Depth of each layer
+diams = [20; 12];   % cm                                                     % Diameter of bars diametro_barras_tipo_1, diam2, diam3
+nBars = [2 17; 2 17; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2];                                                         % Number of bars per layer
+d = [35; 70; 105; 140; 175; 210; 245; 280; 315; 350; 385; 420; 455; 490; 525; 560; 595; 630; 665];
 
 % ecu
 ecu = 0.003;
@@ -34,23 +33,46 @@ ecu = 0.003;
 % lambda
 lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
 
-% Ultimate Moments and Axial Loads (tonf)
-Mu_ = [5.37; 2.26; 0.97; -5.39; -2.25; -0.94; 0.03; 0.01; 0.07; -0.04; -0.01; -0.05; 0.03; 0.02; 0.08; -0.05; -0.01; -0.04; 5.37; 2.26; 0.97; -5.39; -2.25; -0.94; -0.01; 0.00; 0.02; -0.01; 0.00; 0.02; -0.01; 0.00; 0.02; 4.66; 1.96; 1.11; -4.85; -1.90; -0.80; -0.06; 0.04; 0.21; -0.12; 0.02; 0.10; -0.12; 0.06; 0.31; -0.18; 0.04; 0.21; 4.60; 1.98; 1.21; -4.91; -1.88; -0.69; -0.17; 0.06; 0.29; -0.14; 0.05; 0.24; -0.14; 0.05; 0.23];
-Pu_ = -[-265.90; -264.40; -262.90; -274.84; -273.34; -271.84; -237.75; -236.25; -234.76; -302.99; -301.49; -299.99; -399.84; -397.85; -395.85; -465.08; -463.08; -461.08; -427.99; -425.99; -424.00; -436.93; -434.93; -432.94; -476.98; -474.99; -472.99; -420.57; -418.24; -415.92; -400.77; -398.78; -396.78; -238.79; -237.29; -235.79; -263.18; -261.68; -260.18; -215.77; -214.28; -212.78; -286.19; -284.69; -283.20; -365.37; -363.38; -361.38; -435.79; -433.79; -431.80; -388.39; -386.39; -384.39; -412.78; -410.78; -408.78; -441.33; -439.33; -437.34; -390.42; -388.09; -385.76; -371.41; -369.41; -367.41];
+% Pier internal forces Data (from etabs analysis results tables) (tonf, m)
+% col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
+% each row is a load combination
+% for wall design, we're only interested in the first floor internal forces
+%
+internalForcesData = [
+-1473.7327 348.0111 145.0541 646.2986 3502.5691 4092.9903;
+-1953.787 -340.0257 -157.3547 -647.0617 -3452.2185 -4097.0131;
+-1575.7248 7.2082 340.7293 4.4981 5961.4339 2.5527;
+-1851.7949 0.7772 -353.0299 -5.2612 -5911.0832 -6.5755;
+-2523.1071 9.9282 336.6747 4.1342 5977.0811 1.2399;
+-2799.1772 3.4971 -357.0845 -5.6252 -5895.4361 -7.8883;
+-2421.115 350.7311 140.9995 645.9346 3518.2163 4091.6775;
+-2901.1693 -337.3057 -161.4094 -647.4257 -3436.5713 -4098.3258;
+-2893.9367 7.5493 -11.4085 -0.8832 45.4478 -3.714;
+-2665.8487 6.2109 -9.5671 -0.5935 39.1616 -3.1288;
+-1473.7327 350.7311 340.7293 646.2986 5977.0811 4092.9903;
+-2901.1693 -340.0257 -357.0845 -647.4257 -5911.0832 -4098.3258;
+-2495.8525 6.0283 -9.2053 -0.6131 38.0654 -3.0172
+];
+
+Mu_ = internalForcesData(:,6);                                              % As we're interested in M3 now
+Pu_ = -internalForcesData(:,1);
 
 % Deformation range
 % for interaction diagram
-es_min = -0.003;                                                           % es mínimo a analizar
-es_max = 0.5;                                                                 % es máximo a analizar
+es_min = -0.0002;                                                           % es mínimo a analizar
+es_max = 0.5;                                                               % es máximo a analizar
 n_es = 5000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
 
 % For moment-curvature diagram
-ec_min = 0.001;
+ec_min = 0.000001;
 ec_max = 0.003;
-n_ec = 10;
+n_ec = 50;
 
 % for interaction diagram (axial based)
-n_N = 20; % interpolation points between pure compression and pure traction
+n_N = 200; % interpolation points between pure compression and pure traction
+
+% concrete partitions
+part = 200;
 
 %% Previous Calculations
 % Reinf Layers
@@ -104,20 +126,20 @@ Section.ecc = [ec_min; ec_max; n_ec];
 Section.Mu_ = Mu_;
 Section.Pu_ = Pu_;
 Section.n_N = n_N;
+Section.part = part;
 
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
 % [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section);
-% [M, curvature] = getMomentCurvature(Section);
+% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section);
 
-% %% getMn (with minimum axial load)
-% 
-% Section2 = Section;
-% Section2.Pu = min(Pu_)*1000; % kgf
-% [Mn_col, phiMn_col, phi_val_col, ~, ~, ~, ~, ~] = getMn(Section2); % kgf y cm
-% Mn_col = Mn_col/1000/100; % tonf-m
-% phiMn_col = phiMn_col/1000/100; % tonf-m
+
+%% Diseño a flexión
+fprintf('-----------------Diseño a flexión-----------------')
+fprintf('Cuantía------------------------------------------\n')
+
+
 
 % %% Display
 % fprintf('-----------Wall Design-----------\n')
