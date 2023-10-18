@@ -18,63 +18,59 @@ fc = 300; % kgf/cm2                                                         % Co
 fy = 4200; % kgf/cm^2                                                       % Steel's strength
 Es = 2.1*10^6; %kgf/cm^2                                                    % Steel reinforce modulus of elasticity
 
+% lambda
+lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
+
 % Section geometry
 b = [790; 50]; % cm                                                         % Concrete section zones widths
 h = [30; 640]; % cm                                                         % Concrete section zones heights
 
-% Reinforcement
-diams = [20; 12];   % cm                                                     % Diameter of bars diametro_barras_tipo_1, diam2, diam3
-nBars = [2 17; 2 17; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2];                                                         % Number of bars per layer
-d = [35; 70; 105; 140; 175; 210; 245; 280; 315; 350; 385; 420; 455; 490; 525; 560; 595; 630; 665];
+% Reinforcement (from top to bottom)
+% diameters of each type of bar
+diams = [25; 22];   % cm                                                    % Diameter of bars diametro_barras_tipo_1, diam2, diam3
+% number of bars of each type (the important one is nBars)
+n = 3; % number of curtains in the web
+m = 3;
+spacing = 15; %cm
+cover = 5; % cm
+h_web = h(2);
+n_vect = repmat([0 n],[(h_web-2*cover)/spacing 1]);
+nBars = [2 23; 2 23; n_vect; m 0; m 0; m 0];                               % Number of bars per layer
+% depth of each layer (the important one is d)
+d_vect = ((h(1)+cover):spacing:(sum(h)-cover)).';
+d = [cover; h(1)-cover; d_vect];
 
 % ecu
 ecu = 0.003;
 
-% lambda
-lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
-
-% Pier internal forces Data (from etabs analysis results tables) (tonf, m)
+% Pier internal forces Data
+% Copy paste etabs analysis results tables from excel into a .txt file
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
-% each row is a load combination
-% for wall design, we're only interested in the first floor internal forces
-%
-internalForcesData = [
--1473.7327 348.0111 145.0541 646.2986 3502.5691 4092.9903;
--1953.787 -340.0257 -157.3547 -647.0617 -3452.2185 -4097.0131;
--1575.7248 7.2082 340.7293 4.4981 5961.4339 2.5527;
--1851.7949 0.7772 -353.0299 -5.2612 -5911.0832 -6.5755;
--2523.1071 9.9282 336.6747 4.1342 5977.0811 1.2399;
--2799.1772 3.4971 -357.0845 -5.6252 -5895.4361 -7.8883;
--2421.115 350.7311 140.9995 645.9346 3518.2163 4091.6775;
--2901.1693 -337.3057 -161.4094 -647.4257 -3436.5713 -4098.3258;
--2893.9367 7.5493 -11.4085 -0.8832 45.4478 -3.714;
--2665.8487 6.2109 -9.5671 -0.5935 39.1616 -3.1288;
--1473.7327 350.7311 340.7293 646.2986 5977.0811 4092.9903;
--2901.1693 -340.0257 -357.0845 -647.4257 -5911.0832 -4098.3258;
--2495.8525 6.0283 -9.2053 -0.6131 38.0654 -3.0172
-];
-
-Mu_ = internalForcesData(:,6);                                              % As we're interested in M3 now
-Pu_ = -internalForcesData(:,1);
+internalForcesFileName = 'internalForces_AD.txt'; % data must be in tonf, m
 
 % Deformation range
 % for interaction diagram
-es_min = -0.0002;                                                           % es mínimo a analizar
-es_max = 0.5;                                                               % es máximo a analizar
-n_es = 5000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
+es_min = -0.00051;                                                          % es mínimo a analizar
+es_max = 0.6;                                                               % es máximo a analizar
+n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
 
 % For moment-curvature diagram
-ec_min = 0.000001;
+ec_min = 0.00001;
 ec_max = 0.003;
-n_ec = 50;
+n_ec = 10;
 
-% for interaction diagram (axial based)
-n_N = 200; % interpolation points between pure compression and pure traction
-
-% concrete partitions
-part = 200;
+% % for interaction diagram (axial based)
+% n_N = 10; % interpolation points between pure compression and pure traction
+% 
+% % concrete partitions for use in mandel model
+% part = 200;
 
 %% Previous Calculations
+% load internal forces
+internalForcesData = readmatrix('internalForces_AD.txt');
+Mu_ = internalForcesData(:,5);  % M2                                        % As we're interested in M3 now
+Pu_ = -internalForcesData(:,1); % P
+
 % Reinf Layers
 nLayers = size(diams);                                                      % Number of Layers of longitudinal reinforcement
 layers = (1:1:nLayers).';                                                   % Layer IDs
@@ -89,15 +85,19 @@ ag_zones = b.*h; % cm^2                                                     % Ar
 ag = sum(ag_zones); % cm^2                                                  % Total area of concrete
 
 % Area of steel for each layer
-as_types = pi*(nBars.*(diams.'/10).^2); % cm^2
+as_types = 0.25*pi*(nBars.*(diams.'/10).^2); % cm^2
 as = sum(as_types,2); % cm^2                                                % Vector of as in each layer of reinforcement
 
 % Axial Strength of the Section
-P0 = 0.85*fc*ag + sum(as)*(fy - fc); % kgf
+P0 = 0.85*fc*(ag-sum(as)) + sum(as*fy); % kgf
 Ptracc = -sum(as)*fy; % kgf
 
 % Plastic Centroid
-PC = (0.85*fc*sum(b.*h.^2)/2 + sum(as.*d*(fy - fc)))/(P0); % cm
+aux = h;
+aux(end) = [];
+aux = [0; cumsum(aux)];
+h_centroids = h/2 + aux; % cm
+PC = (0.85*fc*sum(b.*h.*h_centroids) + sum(as.*d*(fy-0.85*fc)))/P0; % cm
 
 % beta1
 beta1_val = beta1(fc);
@@ -110,12 +110,12 @@ Section.Es = Es;
 Section.b = b;
 Section.h = h;
 % Section.r = r;
-Section.nBars = nBars;
-Section.diams = diams;
+% Section.nBars = nBars;
+% Section.diams = diams;
 % Section.Pu = Pu;
 Section.ecu = ecu;
-Section.nLayers = nLayers;
-Section.layers = layers;
+% Section.nLayers = nLayers;
+% Section.layers = layers;
 Section.d = d;
 Section.as = as;
 Section.P0 = P0;
@@ -125,8 +125,8 @@ Section.ess = [es_min; es_max; n_es];
 Section.ecc = [ec_min; ec_max; n_ec];
 Section.Mu_ = Mu_;
 Section.Pu_ = Pu_;
-Section.n_N = n_N;
-Section.part = part;
+% Section.n_N = n_N;
+% Section.part = part;
 
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
@@ -136,10 +136,23 @@ Section.part = part;
 
 
 %% Diseño a flexión
-fprintf('-----------------Diseño a flexión-----------------')
+fprintf('-----------------Diseño a flexión-----------------\n')
 fprintf('Cuantía------------------------------------------\n')
-
-
+rho_l = sum(as)/ag;
+rho_l_min = 2.5/1000;
+if rho_l > rho_l_min
+    fprintf('Cuantía rho_l = %.4f > rho_l_min = %.4f OK\n',rho_l,rho_l_min)
+else
+    fprintf('Cuantía rho_l = %.4f < rho_l_min = %.4f NO OK\n',rho_l,rho_l_min)
+end
+fprintf('S_max------------------------------------------\n')
+s = max(diff(d)); % cm
+s_max = 45; % cm
+if s < s_max
+    fprintf('s = %.1f < s_max = %.1f OK\n',s,s_max)
+else
+    fprintf('s = %.1f > s_max = %.1f NO OK\n',s,s_max)
+end
 
 % %% Display
 % fprintf('-----------Wall Design-----------\n')

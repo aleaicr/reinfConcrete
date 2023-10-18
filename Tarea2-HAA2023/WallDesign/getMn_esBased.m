@@ -1,4 +1,4 @@
-function [Mn, Pn, phi_val, phi_curvature] = getMn_esBased(Section)
+function [Mn, Pn, phi_min] = getMn_esBased(Section)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
@@ -49,8 +49,8 @@ Cc = sum(Cc_vect); % kgf                                                    % Co
 % Flexural Strength of the Section
 Mn = Cc*(PC - Cc_centroid) + sum((PC - d).*f_steel); % kgf-cm               % Nominal flexural strength
 Pn = Cc + sum(f_steel);
-phi_val = phi(min(es));                                                     % Strength reduction factor
-phi_curvature = ecu/c;                                                      % Curvature
+phi_min = phi(min(es));                                                     % Strength reduction factor
+% phi_curvature = ecu/c;                                                      % Curvature
 
 end
 

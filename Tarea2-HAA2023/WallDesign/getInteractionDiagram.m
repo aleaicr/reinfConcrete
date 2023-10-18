@@ -1,8 +1,7 @@
-function [Mn, Pn, phiMn, phiPn, phi_curvature] = getInteractionDiagram(Section)
+function [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
-%
 %%
 % This function generates the Interaction Diagram (DI) and the 
 % Moment-Curvature (M-C) diagrams of a reinforced concrete section
@@ -16,7 +15,6 @@ function [Mn, Pn, phiMn, phiPn, phi_curvature] = getInteractionDiagram(Section)
 % Pn
 % phiMn
 % phiPn
-% phi_curvature
 %
 % Notes
 % 
@@ -45,10 +43,16 @@ Mu_ = Section.Mu_;
 Pu_ = Section.Pu_;
 
 %% previous
-es_vect = (es_min:(es_max-es_min)/(n_es-1):es_max).';
-es_vect(es_vect==0) = [];
+% es range
+% es_vect = (es_min:(es_max-es_min)/(n_es-1):es_max).';
+es_vect = [linspace(es_min, 0, 0.5*n_es).'; linspace(0, es_max, 0.5*n_es).'];
+es_vect(es_vect==0) = []; % el código no calcula con este valor (probar nuevamente)
 es_length = length(es_vect);
+
+% negative section
 Section_neg = Section;
+Section_neg.h = flip(h);
+Section_neg.b = flip(b);
 Section_neg.as = flip(as); % cm2
 Section_neg.d = sum(h) - flip(d); % cm
 Section_neg.PC = sum(h) - PC; % cm
@@ -58,30 +62,24 @@ Section_neg.PC = sum(h) - PC; % cm
 Mn = zeros(es_length,1); % kgf
 Pn = zeros(es_length,1); % kgf
 phi_min = zeros(es_length,1);
-phi_curvature = zeros(es_length,1);
 
 Mn_neg = zeros(es_length,1);
 Pn_neg = zeros(es_length,1);
 phi_min_neg = zeros(es_length,1);
-phi_curvature_neg = zeros(es_length,1);
 
 % positive side
-for i = 1:length(es_vect)
+for i = 1:es_length
     Section.es_val = es_vect(i);
-    [Mn(i), Pn(i), phi_min(i), phi_curvature(i)] = getMn_esBased(Section); % return en kgf y cm
+    [Mn(i), Pn(i), phi_min(i)] = getMn_esBased(Section); % return en kgf y cm
+    Section_neg.es_val = es_vect(i);
+    [Mn_neg(i), Pn_neg(i), phi_min_neg(i)] = getMn_esBased(Section_neg); % return en kgf y cm
 end
 
+%% kgf, cm to tonf, m
 Mn = Mn/1000/100; % tonf-m
 Pn = Pn/1000; % tonf
 phiMn = phi_min.*Mn;
 phiPn = phi_min.*Pn;
-
-% Negative side
-for i = 1:es_length
-    Section_neg.es_val = es_vect(i);
-    [Mn_neg(i), Pn_neg(i), phi_min_neg(i), phi_curvature_neg(i)] = getMn_esBased(Section_neg); % return en kgf y cm
-end
-
 Mn_neg = -Mn_neg/1000/100; % tonf-m
 Pn_neg = Pn_neg/1000; % tonf
 phiMn_neg = phi_min_neg.*Mn_neg; % tonf-m
@@ -112,14 +110,5 @@ ylabel('P_n [tonf]')
 box on
 set(axe1,'FontSize',20);
 hold off
-
-% % Moment - Curvature
-% figure
-% plot(phi_curvature, Mn)
-% hold on
-% plot(phi_curvature_neg, Mn_neg)
-% hold off
-% xlabel('\phi curvature')
-% ylabel('Mn [tonf]')
 
 end

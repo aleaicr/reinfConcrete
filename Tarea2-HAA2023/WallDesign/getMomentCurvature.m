@@ -1,4 +1,8 @@
 function [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section)
+% Tarea 2 - Hormigón Armado Avanzado
+% Departamento de Obras Civiles - Universidad Técnica Federico Santa María
+% Alexis Contreras R. - Gabriel Ramos V.
+%%
 % This function computes and plot the moment-curvature diagram by varying
 % the 'ec' values and using the lowest Pu_ value
 %
@@ -13,7 +17,7 @@ function [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section)
 % fc = Section.fc;
 % fy = Section.fy;
 % Es = Section.Es;
-% b = Section.b;
+b = Section.b;
 h = Section.h;
 % r = Section.r;
 % nBars = Section.nBars;
@@ -36,7 +40,7 @@ ec_max = Section.ecc(2);
 n_ec = Section.ecc(3);
 
 %% Previous
-N = max(Pu_)*1000; %kgf
+N = min(Pu_)*1000; %kgf
 
 %% Get curvature
 % define vector of ec range
@@ -51,6 +55,8 @@ curvature_neg = zeros(ec_length,1);
 
 % define negative section (flip the section)
 Section_neg = Section;
+Section_neg.h = flip(h);
+Section_neg.b = flip(b);
 Section_neg.as = flip(as); % cm2
 Section_neg.d = sum(h) - flip(d); % cm
 Section_neg.PC = sum(h) - PC; % cm
@@ -60,9 +66,10 @@ for i = 1:ec_length
     ec_val = ec_vect(i);
     [M(i), curvature(i)] = getMn_ecBased(Section, N, ec_val); % kgf, cm
     [M_neg(i),curvature_neg(i)] = getMn_ecBased(Section_neg,N,ec_val); % kgf, cm
+    fprintf('finished %.0f calculation \n',i)
 end
 
-% transform units and nagatives
+% kgf, cm to tonf, m
 M = M/1000/100; % tonf-m
 M_neg = M_neg/1000/100; % tonf-m
 curvature_neg = -curvature_neg; % 1/cm
