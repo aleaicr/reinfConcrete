@@ -27,18 +27,11 @@ h = [30; 640]; % cm                                                         % Co
 
 % Reinforcement (from top to bottom)
 % diameters of each type of bar
-diams = [25; 22];   % cm                                                    % Diameter of bars diametro_barras_tipo_1, diam2, diam3
-% number of bars of each type (the important one is nBars)
-n = 3; % number of curtains in the web
-m = 3;
-spacing = 15; %cm
-cover = 5; % cm
-h_web = h(2);
-n_vect = repmat([0 n],[(h_web-2*cover)/spacing 1]);
-nBars = [2 23; 2 23; n_vect; m 0; m 0; m 0];                               % Number of bars per layer
-% depth of each layer (the important one is d)
-d_vect = ((h(1)+cover):spacing:(sum(h)-cover)).';
-d = [cover; h(1)-cover; d_vect];
+diams = [25; 25];   % cm
+% number of bars of each type in each layer
+nBars = [4 49; 4 49; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0];
+% depth of each reinforcement layer
+d = [5; 25; 35; 50; 65; 80; 95; 110; 125; 140; 155; 170; 185; 200; 215; 230; 245; 260; 275; 290; 305; 320; 335; 350; 365; 380; 395; 410; 425; 440; 455; 470; 485; 500; 515; 530; 545; 560; 575; 590; 605; 620; 635; 650; 665];
 
 % ecu
 ecu = 0.003;
@@ -46,14 +39,15 @@ ecu = 0.003;
 % Pier internal forces Data
 % Copy paste etabs analysis results tables from excel into a .txt file
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
-internalForcesFileName = 'internalForces_AD.txt'; % data must be in tonf, m
+internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
+Piers = {'PA', 'PD'};
+stories = [1;2;3;4;5;6;7;8;9;10;11;12];
 
 % Deformation range
 % for interaction diagram
-es_min = -0.00051;                                                          % es mínimo a analizar
+es_min = -0.0005;                                                          % es mínimo a analizar
 es_max = 0.6;                                                               % es máximo a analizar
 n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
-
 % For moment-curvature diagram
 ec_min = 0.00001;
 ec_max = 0.003;
@@ -67,8 +61,8 @@ n_ec = 10;
 
 %% Previous Calculations
 % load internal forces
-internalForcesData = readmatrix('internalForces_AD.txt');
-Mu_ = internalForcesData(:,5);  % M2                                        % As we're interested in M3 now
+[~, ~, ~, internalForcesData] = readAnalysisResults(internalForcesFileName, Piers, stories);
+Mu_ = internalForcesData(:,6);  % M3                                        % As we're interested in M3 now
 Pu_ = -internalForcesData(:,1); % P
 
 % Reinf Layers
