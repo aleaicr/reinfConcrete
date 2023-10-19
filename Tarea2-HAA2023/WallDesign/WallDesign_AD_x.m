@@ -27,7 +27,7 @@ h = [30; 640]; % cm                                                         % Co
 
 % Reinforcement (from top to bottom)
 % diameters of each type of bar
-diams = [25; 25];   % cm
+diams = [25; 20];   % cm
 % number of bars of each type in each layer
 nBars = [4 49; 4 49; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0];
 % depth of each reinforcement layer

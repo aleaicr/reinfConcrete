@@ -27,7 +27,7 @@ h = [30; 640]; % cm                                                         % Co
 
 % Reinforcement (from top to bottom)
 % diameters of each type of bar
-diams = [25; 25];   % cm
+diams = [25; 20];   % cm
 % number of bars of each type in each layer
 nBars = [4 49; 4 49; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0];
 % depth of each reinforcement layer
@@ -39,15 +39,15 @@ ecu = 0.003;
 % Pier internal forces Data
 % Copy paste etabs analysis results tables from excel into a .txt file
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
-internalForcesFileName = 'internalForces_BC_floor1.txt'; % data must be in tonf, m
-Piers = {'PA', 'PD'};
-stories = [1;2;3];
+internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
+Piers = {'PA', 'PB', 'PC', 'PD'};
+stories = [1;2;3;4;5;6;7;8;9;10;11;12];
+
 % Deformation range
 % for interaction diagram
-es_min = -0.00051;                                                          % es mínimo a analizar
+es_min = -0.0005;                                                          % es mínimo a analizar
 es_max = 0.6;                                                               % es máximo a analizar
 n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
-
 % For moment-curvature diagram
 ec_min = 0.00001;
 ec_max = 0.003;
@@ -61,9 +61,8 @@ n_ec = 10;
 
 %% Previous Calculations
 % load internal forces
-[story, loads, pier, internalForcesDatad] = readAnalysisResults(internalForcesFileName, Piers, stories);
-
-Mu_ = internalForcesData(:,5);  % M2                                        % As we're interested in M3 now
+[~, ~, ~, internalForcesData] = readAnalysisResults(internalForcesFileName, Piers, stories);
+Mu_ = internalForcesData(:,6);  % M3                                        % As we're interested in M3 now
 Pu_ = -internalForcesData(:,1); % P
 
 % Reinf Layers
@@ -141,7 +140,7 @@ else
     fprintf('Cuantía rho_l = %.4f < rho_l_min = %.4f NO OK\n',rho_l,rho_l_min)
 end
 fprintf('S_max------------------------------------------\n')
-s = max(diff(d(2:end))); % cm
+s = max(diff(d)); % cm
 s_max = 45; % cm
 if s < s_max
     fprintf('s = %.1f < s_max = %.1f OK\n',s,s_max)
