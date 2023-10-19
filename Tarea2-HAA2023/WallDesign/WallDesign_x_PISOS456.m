@@ -27,9 +27,9 @@ h = [30; 640]; % cm                                                         % Co
 
 % Reinforcement (from top to bottom)
 % diameters of each type of bar
-diams = [25; 20];   % cm
+diams = [15; 12];   % cm
 % number of bars of each type in each layer
-nBars = [4 49; 4 49; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0];
+nBars = [10 43; 10 43; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0; 3 0; 3 0];
 % depth of each reinforcement layer
 d = [5; 25; 35; 50; 65; 80; 95; 110; 125; 140; 155; 170; 185; 200; 215; 230; 245; 260; 275; 290; 305; 320; 335; 350; 365; 380; 395; 410; 425; 440; 455; 470; 485; 500; 515; 530; 545; 560; 575; 590; 605; 620; 635; 650; 665];
 
@@ -40,8 +40,8 @@ ecu = 0.003;
 % Copy paste etabs analysis results tables from excel into a .txt file
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
 internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
-Piers = {'PA', 'PD'};
-stories = [1;2;3;4;5;6;7;8;9;10;11;12];
+Piers = {'PA', 'PB', 'PC', 'PD'};
+stories = [4; 5; 6];
 
 % Deformation range
 % for interaction diagram

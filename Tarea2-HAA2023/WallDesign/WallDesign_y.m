@@ -27,9 +27,9 @@ h = [370; 50; 370]; % cm                                                    % Co
 
 % Reinforcement
 % diameters of each type of bar
-diams = [36; 20];   % cm
+diams = [25; 22];   % cm
 % number of bars of each type in each layer
-nBars = [2 0; 2 0; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2;0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;3 40; 0 2;3 2; 0 2;3 40; 0 2; 0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;2 0; 2 0;]; % depth of each reinforcement layer
+nBars = [2 0; 2 0; 2 0; 2 0; 2 0; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 5 38; 0 2; 5 2; 0 2;5 38; 0 2; 0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 2 0;2 0; 2 0;2 0; 2 0;]; % depth of each reinforcement layer
 % depth of each reinforcement layer
 d = [5; 20; 35; 50; 65; 80; 95; 110; 125;140;155;170;185;200;215;230;245;260;275;290;305;320;335;350;365;375;380;395;410;415;425;440;455;470;485;500;515;530;545;560;575;590;605;620;635;650;665;680;695;710;725;740;755;770;785];
 
@@ -40,8 +40,8 @@ ecu = 0.003;
 % Copy paste etabs analysis results tables from excel into a .txt file
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
 internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
-Piers = {'PB', 'PC'};
-stories = [1;2;3;4;5;6;7;8;9;10;11;12];
+Piers = {'PA', 'PB', 'PC', 'PD'};
+stories = [5;6;7;8;9;10;11;12];
 
 % Deformation range
 % for interaction diagram
@@ -83,7 +83,7 @@ as_types = 0.25*pi*(nBars.*(diams.'/10).^2); % cm^2
 as = sum(as_types,2); % cm^2                                                % Vector of as in each layer of reinforcement
 
 % Axial Strength of the Section
-P0 = 0.85*fc*ag + sum(as*(fy-0.85*fc)); % kgf
+P0 = 0.85*fc*(ag-sum(as)) + sum(as*fy); % kgf
 Ptracc = -sum(as)*fy; % kgf
 
 % Plastic Centroid
@@ -104,12 +104,12 @@ Section.Es = Es;
 Section.b = b;
 Section.h = h;
 % Section.r = r;
-Section.nBars = nBars;
-Section.diams = diams;
+% Section.nBars = nBars;
+% Section.diams = diams;
 % Section.Pu = Pu;
 Section.ecu = ecu;
-Section.nLayers = nLayers;
-Section.layers = layers;
+% Section.nLayers = nLayers;
+% Section.layers = layers;
 Section.d = d;
 Section.as = as;
 Section.P0 = P0;
@@ -125,13 +125,37 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
+% [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section);
 % [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section);
 
 
 %% Diseño a flexión
-fprintf('-----------------Diseño a flexión-----------------')
+fprintf('-----------------Diseño a flexión-----------------\n')
 fprintf('Cuantía------------------------------------------\n')
+rho_l = sum(as)/ag;
+rho_l_min = 2.5/1000;
+if rho_l > rho_l_min
+    fprintf('Cuantía rho_l = %.4f > rho_l_min = %.4f OK\n',rho_l,rho_l_min)
+else
+    fprintf('Cuantía rho_l = %.4f < rho_l_min = %.4f NO OK\n',rho_l,rho_l_min)
+end
+fprintf('S_max------------------------------------------\n')
+s = max(diff(d)); % cm
+s_max = 45; % cm
+if s < s_max
+    fprintf('s = %.1f < s_max = %.1f OK\n',s,s_max)
+else
+    fprintf('s = %.1f > s_max = %.1f NO OK\n',s,s_max)
+end
 
+
+fprintf('\n\n-----------------Elemento de borde-----------------\n')
+% Mu_
+Mu23_ = internalForcesData(:,5:6);
+Vu23_ = internalForcesData(:,2:3);
+lw = max(sum(h),sum(b));
+muvu = 4*Mu23_./Vu23_;
+h_estribos = max([lw;muvu(:)]);
 
 
 % %% Display

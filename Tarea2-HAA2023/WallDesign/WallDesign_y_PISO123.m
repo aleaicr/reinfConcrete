@@ -27,9 +27,9 @@ h = [370; 50; 370]; % cm                                                    % Co
 
 % Reinforcement
 % diameters of each type of bar
-diams = [25; 25];   % cm
+diams = [25; 22];   % cm
 % number of bars of each type in each layer
-nBars = [2 0; 2 0; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2;0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;3 40; 0 2;3 2; 0 2;3 40; 0 2; 0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;2 0; 2 0;]; % depth of each reinforcement layer
+nBars = [2 0; 2 0; 2 0; 2 0; 2 0; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 5 38; 0 2; 5 2; 0 2;5 38; 0 2; 0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 2 0;2 0; 2 0;2 0; 2 0;]; % depth of each reinforcement layer
 % depth of each reinforcement layer
 d = [5; 20; 35; 50; 65; 80; 95; 110; 125;140;155;170;185;200;215;230;245;260;275;290;305;320;335;350;365;375;380;395;410;415;425;440;455;470;485;500;515;530;545;560;575;590;605;620;635;650;665;680;695;710;725;740;755;770;785];
 
@@ -41,7 +41,7 @@ ecu = 0.003;
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
 internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
 Piers = {'PA', 'PB', 'PC', 'PD'};
-stories = [1;2;3;4;5;6;7;8;9;10;11;12];
+stories = [1; 2; 3];
 
 % Deformation range
 % for interaction diagram

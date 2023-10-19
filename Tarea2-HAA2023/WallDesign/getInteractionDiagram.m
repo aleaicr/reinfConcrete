@@ -102,8 +102,7 @@ yline(0.35*fc*sum(b.*h)/1000,'--r',"$$0.35f'_cA_g$$",'Interpreter', 'latex','fon
 plot(Mn_neg,Pn_neg,'color', '#460CB2', 'linewidth', 2)
 plot(phiMn, phiPn,'color','#57A413', 'linewidth', 2)
 plot(phiMn_neg, phiPn_neg,'color','#57A413', 'linewidth', 2)
-plot(Mu_, Pu_, 'o', 'color', '#C1330C')
-% plot(Mu2_, Pu_, 'o', 'color', '#C1330C')
+plot(Mu_, Pu_, '.', 'color', '#C1330C')
 grid on
 xlabel('M_n [tonf-m]')
 ylabel('P_n [tonf]')

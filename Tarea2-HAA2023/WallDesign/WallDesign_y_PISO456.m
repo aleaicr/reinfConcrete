@@ -22,16 +22,16 @@ Es = 2.1*10^6; %kgf/cm^2                                                    % St
 lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
 
 % Section geometry
-b = [790; 50]; % cm                                                         % Concrete section zones widths
-h = [30; 640]; % cm                                                         % Concrete section zones heights
+b = [30; 670; 30]; % cm                                                     % Concrete section zones widths
+h = [370; 50; 370]; % cm                                                    % Concrete section zones heights
 
-% Reinforcement (from top to bottom)
+% Reinforcement
 % diameters of each type of bar
-diams = [36; 20];   % cm
+diams = [15; 12];   % cm
 % number of bars of each type in each layer
-nBars = [4 49; 4 49; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0];
+nBars = [2 0; 2 0; 2 0; 2 0; 2 0; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 5 38; 0 2; 5 2; 0 2;5 38; 0 2; 0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 2 0;2 0; 2 0;2 0; 2 0;]; % depth of each reinforcement layer
 % depth of each reinforcement layer
-d = [5; 25; 35; 50; 65; 80; 95; 110; 125; 140; 155; 170; 185; 200; 215; 230; 245; 260; 275; 290; 305; 320; 335; 350; 365; 380; 395; 410; 425; 440; 455; 470; 485; 500; 515; 530; 545; 560; 575; 590; 605; 620; 635; 650; 665];
+d = [5; 20; 35; 50; 65; 80; 95; 110; 125;140;155;170;185;200;215;230;245;260;275;290;305;320;335;350;365;375;380;395;410;415;425;440;455;470;485;500;515;530;545;560;575;590;605;620;635;650;665;680;695;710;725;740;755;770;785];
 
 % ecu
 ecu = 0.003;
@@ -40,8 +40,8 @@ ecu = 0.003;
 % Copy paste etabs analysis results tables from excel into a .txt file
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
 internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
-Piers = {'PB', 'PC'};
-stories = [1;2;3;4;5;6;7;8;9;10;11;12];
+Piers = {'PA', 'PB', 'PC', 'PD'};
+stories = [4; 5; 6];
 
 % Deformation range
 % for interaction diagram
@@ -62,7 +62,7 @@ n_ec = 10;
 %% Previous Calculations
 % load internal forces
 [~, ~, ~, internalForcesData] = readAnalysisResults(internalForcesFileName, Piers, stories);
-Mu_ = internalForcesData(:,6);  % M3                                        % As we're interested in M3 now
+Mu_ = internalForcesData(:,5);  % M2                                        % As we're interested in M3 now
 Pu_ = -internalForcesData(:,1); % P
 
 % Reinf Layers
@@ -140,7 +140,7 @@ else
     fprintf('Cuantía rho_l = %.4f < rho_l_min = %.4f NO OK\n',rho_l,rho_l_min)
 end
 fprintf('S_max------------------------------------------\n')
-s = max(diff(d(2:end))); % cm
+s = max(diff(d)); % cm
 s_max = 45; % cm
 if s < s_max
     fprintf('s = %.1f < s_max = %.1f OK\n',s,s_max)
