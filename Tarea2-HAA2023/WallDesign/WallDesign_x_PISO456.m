@@ -27,7 +27,7 @@ h = [30; 640]; % cm                                                         % Co
 
 % Reinforcement (from top to bottom)
 % diameters of each type of bar
-diams = [15; 12];   % cm
+diams = [16; 10];   % cm
 % number of bars of each type in each layer
 nBars = [10 43; 10 43; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0; 3 0; 3 0];
 % depth of each reinforcement layer
@@ -43,25 +43,30 @@ internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
 Piers = {'PA', 'PB', 'PC', 'PD'};
 stories = [4; 5; 6];
 
-% Deformation range
-% for interaction diagram
+% Strain range for interaction diagram
 es_min = -0.0005;                                                          % es mínimo a analizar
-es_max = 0.6;                                                               % es máximo a analizar
+es_max = 1;                                                               % es máximo a analizar
 n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
-% For moment-curvature diagram
-ec_min = 0.00001;
-ec_max = 0.003;
-n_ec = 10;
 
-% % for interaction diagram (axial based)
-% n_N = 10; % interpolation points between pure compression and pure traction
-% 
-% % concrete partitions for use in mandel model
+% Strain range for moment-curvature diagram
+ec_min = 0.0001;
+ec_max = 0.003;
+n_ec = 120;
+es_min_2 = -1;  % intentar no modificar
+es_max_2 = 1;   % intentar no modificar
+n_es_2 = 20000; % aumentar si no da suficientemente definido el M-C
+
+% Number of axial loads to make the moment-curvature diagram, will be
+% equally spaced within min(Pu_) and max(Pu_)
+N_partitions = 2;  
+
+% % concrete partitions for use in mandel model (not available yet)
 % part = 200;
 
 %% Previous Calculations
 % load internal forces
 [~, ~, ~, internalForcesData] = readAnalysisResults(internalForcesFileName, Piers, stories);
+clc
 Mu_ = internalForcesData(:,6);  % M3                                        % As we're interested in M3 now
 Pu_ = -internalForcesData(:,1); % P
 
@@ -116,6 +121,7 @@ Section.P0 = P0;
 Section.PC = PC;
 Section.beta1_val = beta1_val;
 Section.ess = [es_min; es_max; n_es];
+Section.ess_2 = [es_min_2; es_max_2; n_es_2];
 Section.ecc = [ec_min; ec_max; n_ec];
 Section.Mu_ = Mu_;
 Section.Pu_ = Pu_;
@@ -125,8 +131,7 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-% [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section);
-% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section);
+[M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
 
 
 %% Diseño a flexión
@@ -147,6 +152,7 @@ if s < s_max
 else
     fprintf('s = %.1f > s_max = %.1f NO OK\n',s,s_max)
 end
+fprintf('Elemento de Borde-------------------------------\n')
 
 % %% Display
 % fprintf('-----------Wall Design-----------\n')

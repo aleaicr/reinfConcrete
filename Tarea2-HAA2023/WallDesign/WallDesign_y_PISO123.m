@@ -48,14 +48,19 @@ stories = [1; 2; 3];
 es_min = -0.0005;                                                          % es mínimo a analizar
 es_max = 0.6;                                                               % es máximo a analizar
 n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
-% For moment-curvature diagram
-ec_min = 0.00001;
-ec_max = 0.003;
-n_ec = 10;
 
-% % for interaction diagram (axial based)
-% n_N = 10; % interpolation points between pure compression and pure traction
-% 
+% Strain range for moment-curvature diagram
+ec_min = 0.0001;
+ec_max = 0.003;
+n_ec = 100;
+es_min_2 = -2;  % intentar no modificar
+es_max_2 = 2;   % intentar no modificar
+n_es_2 = 50000; % aumentar si no da suficientemente definido el M-C
+
+% Number of axial loads to make the moment-curvature diagram, will be
+% equally spaced within min(Pu_) and max(Pu_)
+N_partitions = 2;  
+
 % % concrete partitions for use in mandel model
 % part = 200;
 
@@ -116,6 +121,7 @@ Section.P0 = P0;
 Section.PC = PC;
 Section.beta1_val = beta1_val;
 Section.ess = [es_min; es_max; n_es];
+Section.ess_2 = [es_min_2; es_max_2; n_es_2];
 Section.ecc = [ec_min; ec_max; n_ec];
 Section.Mu_ = Mu_;
 Section.Pu_ = Pu_;
@@ -125,8 +131,7 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-% [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section);
-% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section);
+[M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
 
 
 %% Diseño a flexión

@@ -1,4 +1,4 @@
-function [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section)
+function [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
@@ -30,28 +30,31 @@ as = Section.as;
 % P0 = Section.P0; % kgf
 PC = Section.PC;
 % beta1_val = Section.beta1_val;
-% es_min = Section.ess(1);
-% es_max = Section.ess(2);
-% n_es = Section.ess(3);
+es_min_2 = Section.ess_2(1);
+es_max_2 = Section.ess_2(2);
+n_es_2 = Section.ess_2(3);
 % Mu_ = Section.Mu_;
-Pu_ = Section.Pu_;
+N = Section.Pu_;
 ec_min = Section.ecc(1);
 ec_max = Section.ecc(2);
 n_ec = Section.ecc(3);
 
 %% Previous
-N = min(Pu_)*1000; %kgf
+N_vect = linspace(min(N), max(N), N_partitions)*1000; % kgf
 
 %% Get curvature
 % define vector of ec range
-ec_vect = (ec_min:(ec_max-ec_min)/(n_ec-1):ec_max).';
+ec_vect = logspace(log10(ec_min),log10(ec_max),n_ec);
+% ec_vect = (ec_min:(ec_max-ec_min)/(n_ec-1):ec_max).';
 ec_length = length(ec_vect);
+es_vect = [linspace(es_min_2, 0, 0.5*n_es_2).'; linspace(0, es_max_2, 0.5*n_es_2).'];
+es_vect(es_vect==0) = [];
 
 % init variables
-M = zeros(ec_length,1);
-M_neg = zeros(ec_length,1);
-curvature = zeros(ec_length,1);
-curvature_neg = zeros(ec_length,1);
+M = zeros(ec_length,N_partitions);
+M_neg = zeros(ec_length,N_partitions);
+curvature = zeros(ec_length,N_partitions);
+curvature_neg = zeros(ec_length,N_partitions);
 
 % define negative section (flip the section)
 Section_neg = Section;
@@ -63,31 +66,40 @@ Section_neg.PC = sum(h) - PC; % cm
 
 % compute moment and curvatures for all ec range
 for i = 1:ec_length
-    ec_val = ec_vect(i);
-    [M(i), curvature(i)] = getMn_ecBased(Section, N, ec_val); % kgf, cm
-    [M_neg(i),curvature_neg(i)] = getMn_ecBased(Section_neg,N,ec_val); % kgf, cm
-    fprintf('finished %.0f calculation \n',i)
+    for j = 1:length(N_vect)
+        ec = ec_vect(i);
+        [M(i,j), curvature(i,j)] = getMn_ecBased(Section, N_vect(j), ec, es_vect); % kgf, cm
+        [M_neg(i,j), curvature_neg(i,j)] = getMn_ecBased(Section_neg, N_vect(j), ec, es_vect); % kgf, cm
+        fprintf('%.0f, %.0f\n',i,j)
+    end
 end
 
 % kgf, cm to tonf, m
 M = M/1000/100; % tonf-m
-M_neg = M_neg/1000/100; % tonf-m
+M_neg = -M_neg/1000/100; % tonf-m
 curvature_neg = -curvature_neg; % 1/cm
-M_neg = -M_neg; % tonf-m
 
 %% Plot
-figure1 = figure('InvertHardcopy','off','Color',[1 1 1],'position',[680   341   968   637]);
+colorPalette = colormap(winter(N_partitions));
+colorPalette = colorPalette / max(colorPalette(:));
+figure1 = figure('InvertHardcopy','off','Color',[1 1 1],'position',[680 341 968 637]);
 axes1 = axes('Parent',figure1);
-plot([0; curvature], [0; M],'color','r','linewidth',3)
 hold on
-plot([0; curvature_neg], [0; M_neg],'color','r','linewidth',3)
-% scatter(curvature(end),M(end),'^r','linewidth',10)
+legends = cell(2*N_partitions, 1);
+for i = 1:N_partitions
+    color_alea = colorPalette(i,:);
+    plot([0; curvature(:,i)], [0; M(:,i)], 'linewidth', 3, 'Color', color_alea)
+    plot([0; curvature_neg(:,i)], [0; M_neg(:,i)], 'linewidth', 3, 'Color', color_alea)
+    legends{2*i-1} = ['N = ' num2str(N_vect(i)/1000) ' [tonf]'];
+    legends{2*i} = '';
+end
 hold off
 xlabel('Curvature (phi) [1/cm]')
-ylabel('Momento (M) [tonf]')
+ylabel('Moment (M) [tonf]')
 grid on
 box on
-set(axes1,'FontSize',20);
+set(axes1, 'FontSize', 20);
+legend(cellstr(legends));
 
 end
 

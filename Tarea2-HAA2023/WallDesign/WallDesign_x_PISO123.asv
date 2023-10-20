@@ -22,16 +22,16 @@ Es = 2.1*10^6; %kgf/cm^2                                                    % St
 lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
 
 % Section geometry
-b = [30; 670; 30]; % cm                                                     % Concrete section zones widths
-h = [370; 50; 370]; % cm                                                    % Concrete section zones heights
+b = [790; 50]; % cm                                                         % Concrete section zones widths
+h = [30; 640]; % cm                                                         % Concrete section zones heights
 
-% Reinforcement
+% Reinforcement (from top to bottom)
 % diameters of each type of bar
 diams = [25; 22];   % cm
 % number of bars of each type in each layer
-nBars = [2 0; 2 0; 2 0; 2 0; 2 0; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 5 38; 0 2; 5 2; 0 2;5 38; 0 2; 0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 2 0;2 0; 2 0;2 0; 2 0;]; % depth of each reinforcement layer
+nBars = [10 43; 10 43; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0; 3 0; 3 0];
 % depth of each reinforcement layer
-d = [5; 20; 35; 50; 65; 80; 95; 110; 125;140;155;170;185;200;215;230;245;260;275;290;305;320;335;350;365;375;380;395;410;415;425;440;455;470;485;500;515;530;545;560;575;590;605;620;635;650;665;680;695;710;725;740;755;770;785];
+d = [5; 25; 35; 50; 65; 80; 95; 110; 125; 140; 155; 170; 185; 200; 215; 230; 245; 260; 275; 290; 305; 320; 335; 350; 365; 380; 395; 410; 425; 440; 455; 470; 485; 500; 515; 530; 545; 560; 575; 590; 605; 620; 635; 650; 665];
 
 % ecu
 ecu = 0.003;
@@ -41,28 +41,31 @@ ecu = 0.003;
 % col1: P, col2: V2, col3: V3, col4: T, col5: M2, col6: M3
 internalForcesFileName = 'resultsEtabsPiers.xlsm'; % data must be in tonf, m
 Piers = {'PA', 'PB', 'PC', 'PD'};
-stories = [5;6;7;8;9;10;11;12];
+stories = [1; 2; 3];
 
-% Deformation range
-% for interaction diagram
-es_min = -0.0005;                                                          % es mínimo a analizar
-es_max = 0.6;                                                               % es máximo a analizar
+% Strain range for interaction diagram
+es_min = -1;                                                          % es mínimo a analizar
+es_max = 1;                                                               % es máximo a analizar
 n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
-% For moment-curvature diagram
+
+% Strain range for moment-curvature diagram
+es_min_2 
 ec_min = 0.00001;
 ec_max = 0.003;
-n_ec = 10;
+n_ec = 100;
 
-% % for interaction diagram (axial based)
-% n_N = 10; % interpolation points between pure compression and pure traction
-% 
-% % concrete partitions for use in mandel model
+% Number of axial loads to make the moment-curvature diagram, will be
+% equally spaced within min(Pu_) and max(Pu_)
+N_partitions = 2;  
+
+% % concrete partitions for use in mandel model (not available yet)
 % part = 200;
 
 %% Previous Calculations
 % load internal forces
 [~, ~, ~, internalForcesData] = readAnalysisResults(internalForcesFileName, Piers, stories);
-Mu_ = internalForcesData(:,5);  % M2                                        % As we're interested in M3 now
+clc
+Mu_ = internalForcesData(:,6);  % M3                                        % As we're interested in M3 now
 Pu_ = -internalForcesData(:,1); % P
 
 % Reinf Layers
@@ -124,9 +127,9 @@ Section.Pu_ = Pu_;
 
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
-[Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
+% [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
 % [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section);
-% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section);
+[M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
 
 
 %% Diseño a flexión
@@ -147,16 +150,6 @@ if s < s_max
 else
     fprintf('s = %.1f > s_max = %.1f NO OK\n',s,s_max)
 end
-
-
-fprintf('\n\n-----------------Elemento de borde-----------------\n')
-% Mu_
-Mu23_ = internalForcesData(:,5:6);
-Vu23_ = internalForcesData(:,2:3);
-lw = max(sum(h),sum(b));
-muvu = 4*Mu23_./Vu23_;
-h_estribos = max([lw;muvu(:)]);
-
 
 % %% Display
 % fprintf('-----------Wall Design-----------\n')
