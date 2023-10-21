@@ -18,7 +18,7 @@ fc = 300; % kgf/cm2                                                         % Co
 fy = 4200; % kgf/cm^2                                                       % Steel's strength
 Es = 2.1*10^6; %kgf/cm^2                                                    % Steel reinforce modulus of elasticity
 
-% lambda
+% lambdate
 lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
 
 % Section geometry
@@ -27,11 +27,11 @@ h = [370; 50; 370]; % cm                                                    % Co
 
 % Reinforcement
 % diameters of each type of bar
-diams = [10; 8];   % cm
+diams = [16; 10];   % cm
 % number of bars of each type in each layer
-nBars = [2 0; 2 0; 2 0; 2 0; 2 0; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 5 38; 0 2; 5 2; 0 2;5 38; 0 2; 0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 0 2;0 2; 2 0;2 0; 2 0;2 0; 2 0;]; % depth of each reinforcement layer
+nBars = [2 0; 2 0; 2 0; 2 0; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 5 19; 0 2; 5 0; 0 2; 5 19; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 2 0; 2 0; 2 0; 2 0];
 % depth of each reinforcement layer
-d = [5; 20; 35; 50; 65; 80; 95; 110; 125;140;155;170;185;200;215;230;245;260;275;290;305;320;335;350;365;375;380;395;410;415;425;440;455;470;485;500;515;530;545;560;575;590;605;620;635;650;665;680;695;710;725;740;755;770;785];
+d = [5; 25; 45; 65; 85; 105; 125; 145; 165; 185; 205; 225; 245; 265; 285; 305; 325; 345; 365; 375; 385; 395; 405; 415; 425; 445; 465; 485; 505; 525; 545; 565; 585; 605; 625; 645; 665; 685; 705; 725; 745; 765; 785];
 
 % ecu
 ecu = 0.003;
@@ -50,12 +50,12 @@ es_max = 0.6;                                                               % es
 n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
 
 % Strain range for moment-curvature diagram
-ec_min = 0.00001;
+ec_min = 0.0001;
 ec_max = 0.003;
-n_ec = 80;
+n_ec = 120;
 es_min_2 = -1;  % intentar no modificar
 es_max_2 = 1;   % intentar no modificar
-n_es_2 = 20000; % aumentar si no da suficientemente definido el M-C
+n_es_2 = 40000; % aumentar si no da suficientemente definido el M-C
 
 % Number of axial loads to make the moment-curvature diagram, will be
 % equally spaced within min(Pu_) and max(Pu_)
@@ -131,9 +131,7 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-% [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section);
-% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section);
-
+% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
 
 %% Diseño a flexión
 fprintf('-----------------Diseño a flexión-----------------\n')

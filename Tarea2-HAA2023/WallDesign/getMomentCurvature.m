@@ -1,4 +1,4 @@
-function [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions)
+function [M, curvature, M_neg, curvature_neg, c, c_neg] = getMomentCurvature(Section, N_partitions)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
@@ -55,6 +55,8 @@ M = zeros(ec_length,N_partitions);
 M_neg = zeros(ec_length,N_partitions);
 curvature = zeros(ec_length,N_partitions);
 curvature_neg = zeros(ec_length,N_partitions);
+c = zeros(ec_length,N_partitions);
+c_neg = zeros(ec_length,N_partitions);
 
 % define negative section (flip the section)
 Section_neg = Section;
@@ -68,8 +70,8 @@ Section_neg.PC = sum(h) - PC; % cm
 for i = 1:ec_length
     for j = 1:length(N_vect)
         ec = ec_vect(i);
-        [M(i,j), curvature(i,j)] = getMn_ecBased(Section, N_vect(j), ec, es_vect); % kgf, cm
-        [M_neg(i,j), curvature_neg(i,j)] = getMn_ecBased(Section_neg, N_vect(j), ec, es_vect); % kgf, cm
+        [M(i,j), curvature(i,j), c(i,j)] = getMn_ecBased(Section, N_vect(j), ec, es_vect); % kgf, cm
+        [M_neg(i,j), curvature_neg(i,j), c_neg(i,j)] = getMn_ecBased(Section_neg, N_vect(j), ec, es_vect); % kgf, cm
         fprintf('%.0f, %.0f\n',i,j)
     end
 end

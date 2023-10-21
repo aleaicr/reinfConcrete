@@ -131,9 +131,14 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-[M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
+[M, curvature, M_neg, curvature_neg, c, c_neg] = getMomentCurvature(Section, N_partitions);
 
-
+figure
+plot3(M(:,1),curvature(:,1), c(:,1))
+grid on
+xlabel('Moment [tonf-m]')
+ylabel('Curvature [1/cm]')
+zlabel('Neutral axis depth [cm]')
 %% Diseño a flexión
 fprintf('-----------------Diseño a flexión-----------------\n')
 fprintf('Cuantía------------------------------------------\n')

@@ -131,7 +131,7 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-[M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
+% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
 
 
 %% Diseño a flexión

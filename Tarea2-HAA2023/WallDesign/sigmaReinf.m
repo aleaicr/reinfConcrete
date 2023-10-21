@@ -14,9 +14,11 @@ function sigma = sigmaReinf(es, fy, Es)
 % (c is the depth of the neutral axis). This, for use in the force
 % equilibrium of the section to determine the value of 'c'.
 % * 'es' can be a double vector 
+% * I'm going to try a new function avoiding the for loop, but can't find
+% how to create a piecewise
 if isa(es,'sym')
     sigma = sym(zeros(length(es),1));                                   % Symbolic vector of symbolic piecewises of a symbolic variable
-    for i = 1:length(es)
+    for i = 1:length(es) % I did a for loop because piecewise 
         sigma(i) = piecewise(abs(es(i)) < fy/Es, es(i)*Es, abs(es(i)) >= fy/Es, sign(es(i))*fy);
     end
 elseif isa(es,'double')

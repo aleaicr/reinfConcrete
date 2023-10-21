@@ -27,11 +27,11 @@ h = [30; 640]; % cm                                                         % Co
 
 % Reinforcement (from top to bottom)
 % diameters of each type of bar
-diams = [10; 8];   % cm
+diams = [16; 10];   % cm
 % number of bars of each type in each layer
-nBars = [10 43; 10 43; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0; 3 0; 3 0];
+nBars = [8 32; 8 32; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 0 2; 3 0; 3 0; 3 0; 3 0; 3 0];
 % depth of each reinforcement layer
-d = [5; 25; 35; 50; 65; 80; 95; 110; 125; 140; 155; 170; 185; 200; 215; 230; 245; 260; 275; 290; 305; 320; 335; 350; 365; 380; 395; 410; 425; 440; 455; 470; 485; 500; 515; 530; 545; 560; 575; 590; 605; 620; 635; 650; 665];
+d = [5; 25; 35; 65; 95; 125; 155; 185; 215; 245; 275; 305; 335; 365; 395; 425; 455; 485; 515; 545; 575; 605; 620; 635; 650; 665];
 
 % ecu
 ecu = 0.003;
@@ -50,12 +50,12 @@ es_max = 0.6;                                                               % es
 n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
 
 % Strain range for moment-curvature diagram
-ec_min = 0.00001;
+ec_min = 0.00005;
 ec_max = 0.003;
-n_ec = 80;
+n_ec = 100;
 es_min_2 = -1;  % intentar no modificar
 es_max_2 = 1;   % intentar no modificar
-n_es_2 = 20000; % aumentar si no da suficientemente definido el M-C
+n_es_2 = 30000; % aumentar si no da suficientemente definido el M-C
 
 % Number of axial loads to make the moment-curvature diagram, will be
 % equally spaced within min(Pu_) and max(Pu_)
@@ -131,8 +131,7 @@ Section.Pu_ = Pu_;
 %% get Interaction Diagram Data
 % graficar diagrama de interacción y momento-curvatura
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-% [Mn, Pn, phiMn, phiPn] = getInteractionDiagram_axial(Section);
-% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section);
+% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
 
 
 %% Diseño a flexión

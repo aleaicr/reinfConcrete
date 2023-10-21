@@ -1,4 +1,4 @@
-function [M, curvature, c] = getMn_ecBased(Section, N, ec, es_vect)
+function [M, curvature, c] = getMn_ecBased_testing(Section, N, ec, es_vect)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
@@ -43,6 +43,12 @@ d_ = max(d);
 
 % get es that produces a P_try almost equal to the axial load N
 min_diff = inf;
+
+c = ec*d_./(ec + es_vect);
+
+es = ec./c.*(c - d);
+
+sigma_Reinf = sigmaReinf
 
 for i = 1:length(es_vect)   % en vez de ciclo for, puedo ocupar c = ec*d_./(ec+es) y así probar con todos, luego
     % try for a single strain
