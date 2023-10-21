@@ -133,22 +133,14 @@ Section.Pu_ = Pu_;
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
 [M, curvature, M_neg, curvature_neg, c, c_neg] = getMomentCurvature(Section, N_partitions);
 
-ID_data = struct();
-ID_data.M = M;
-ID_data.curvature = curvature;
-ID_data.c = c;
-ID_data.M_neg = M_neg;
-ID_data.curvature_neg = curvature_neg;
-ID_data.c_neg = c_neg;
-ID_data.Section = Section;
+createCool3DFigure(M, curvatere, M_neg, curvature_neg, c, c_neg) % I still don't have a name for this
 
-createCool3DFigure(ID_data) % I still don't have a name for this function 
-% figure
-% plot3(M(:,1),curvature(:,1), c(:,1))
-% grid on
-% xlabel('Moment [tonf-m]')
-% ylabel('Curvature [1/cm]')
-% zlabel('Neutral axis depth [cm]')
+figure
+plot3(M(:,1),curvature(:,1), c(:,1))
+grid on
+xlabel('Moment [tonf-m]')
+ylabel('Curvature [1/cm]')
+zlabel('Neutral axis depth [cm]')
 %% Diseño a flexión
 fprintf('-----------------Diseño a flexión-----------------\n')
 fprintf('Cuantía------------------------------------------\n')
