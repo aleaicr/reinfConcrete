@@ -3,18 +3,18 @@ function [M, curvature, c] = getMn_ecBased(Section, N, ec, es_vect)
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
 %%
-% This function determines the nominal flexural strength of a section (Mn)
-% of a reinforced concrete section
+% This function determines the nominal flexural strength based on the
+% concrete's strain and a range of values for the last reinforcement layer strain
 %
 % INPUTS
-% Section: Struct of the reinforced concrete's properties
-% N: Axial load (kgf)
-% ec: concrete strain in top of section
-% es_vect: vector of es to evaluate
+% Section:              Struct of the reinforced concrete's properties
+% N:            (kgf)   Axial load
+% ec:                   concrete strain in top of section
+% es_vect:              vector of es to evaluate
 %
 % OUTPUTS
-% M:
-% curvature:
+% M:            (kgf-cm)
+% curvature:    (1/cm)
 %
 % Notes
 %

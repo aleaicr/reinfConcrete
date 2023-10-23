@@ -67,7 +67,7 @@ Mn_neg = zeros(es_length,1);
 Pn_neg = zeros(es_length,1);
 phi_min_neg = zeros(es_length,1);
 
-% positive side
+% Computation of values
 for i = 1:es_length
     Section.es_val = es_vect(i);
     [Mn(i), Pn(i), phi_min(i)] = getMn_esBased(Section); % return en kgf y cm

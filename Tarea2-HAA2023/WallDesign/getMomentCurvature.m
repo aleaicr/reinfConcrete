@@ -1,4 +1,4 @@
-function [M, curvature, M_neg, curvature_neg, c, c_neg] = getMomentCurvature(Section, N_partitions)
+function [M, curvature, c, M_neg, curvature_neg, c_neg] = getMomentCurvature(Section, N_partitions)
 % Tarea 2 - Hormigón Armado Avanzado
 % Departamento de Obras Civiles - Universidad Técnica Federico Santa María
 % Alexis Contreras R. - Gabriel Ramos V.
@@ -67,12 +67,12 @@ Section_neg.d = sum(h) - flip(d); % cm
 Section_neg.PC = sum(h) - PC; % cm
 
 % compute moment and curvatures for all ec range
+fprintf('The analysis is in a long double for loop, wait for the MC diagram\n')
 for i = 1:ec_length
     for j = 1:length(N_vect)
         ec = ec_vect(i);
         [M(i,j), curvature(i,j), c(i,j)] = getMn_ecBased(Section, N_vect(j), ec, es_vect); % kgf, cm
         [M_neg(i,j), curvature_neg(i,j), c_neg(i,j)] = getMn_ecBased(Section_neg, N_vect(j), ec, es_vect); % kgf, cm
-        fprintf('%.0f, %.0f\n',i,j)
     end
 end
 
@@ -80,6 +80,7 @@ end
 M = M/1000/100; % tonf-m
 M_neg = -M_neg/1000/100; % tonf-m
 curvature_neg = -curvature_neg; % 1/cm
+% c and c_neg will stay in cm in cm
 
 %% Plot
 colorPalette = colormap(winter(N_partitions));
@@ -90,14 +91,15 @@ hold on
 legends = cell(2*N_partitions, 1);
 for i = 1:N_partitions
     color_alea = colorPalette(i,:);
-    plot([0; curvature(:,i)], [0; M(:,i)], 'linewidth', 3, 'Color', color_alea)
-    plot([0; curvature_neg(:,i)], [0; M_neg(:,i)], 'linewidth', 3, 'Color', color_alea)
+    plot([0; curvature(:,i)*100], [0; M(:,i)], 'linewidth', 3, 'Color', color_alea)
+    plot([0; curvature_neg(:,i)*100], [0; M_neg(:,i)], 'linewidth', 3, 'Color', color_alea)
     legends{2*i-1} = ['N = ' num2str(N_vect(i)/1000) ' [tonf]'];
     legends{2*i} = '';
 end
+title(['ec_{max} = ' num2str(ec_max)],['ec_{max,eval} =' num2str(max(ec_vect))])
 hold off
-xlabel('Curvature (phi) [1/cm]')
-ylabel('Moment (M) [tonf]')
+xlabel('Curvature (phi) [1/m]')
+ylabel('Moment (M) [tonf-m]')
 grid on
 box on
 set(axes1, 'FontSize', 20);

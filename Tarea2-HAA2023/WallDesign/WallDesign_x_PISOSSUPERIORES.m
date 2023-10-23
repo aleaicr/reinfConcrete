@@ -53,13 +53,16 @@ n_es = 50000;                                                                % N
 ec_min = 0.00005;
 ec_max = 0.003;
 n_ec = 100;
-es_min_2 = -1;  % intentar no modificar
-es_max_2 = 1;   % intentar no modificar
+es_min_2 = -2;  % intentar no modificar
+es_max_2 = 2;   % intentar no modificar
 n_es_2 = 30000; % aumentar si no da suficientemente definido el M-C
 
 % Number of axial loads to make the moment-curvature diagram, will be
 % equally spaced within min(Pu_) and max(Pu_)
 N_partitions = 2;  
+
+% Demand of displacement (at the top of the building)
+du = 30; % cm
 
 % % concrete partitions for use in mandel model
 % part = 200;
@@ -67,8 +70,8 @@ N_partitions = 2;
 %% Previous Calculations
 % load internal forces
 [~, ~, ~, internalForcesData] = readAnalysisResults(internalForcesFileName, Piers, stories);
-Mu_ = internalForcesData(:,6);  % M3                                        % As we're interested in M3 now
-Pu_ = -internalForcesData(:,1); % P
+Mu_ = internalForcesData(:,6);  % M3   % tonf-m                             % As we're interested in M3 now
+Pu_ = -internalForcesData(:,1); % P    % tonf
 
 % Reinf Layers
 nLayers = size(diams);                                                      % Number of Layers of longitudinal reinforcement
@@ -128,17 +131,45 @@ Section.Pu_ = Pu_;
 % Section.n_N = n_N;
 % Section.part = part;
 
-%% get Interaction Diagram Data
-% graficar diagrama de interacción y momento-curvatura
+%% get Diagrams
+% plot Interaction Diagram
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
-% [M, curvature, M_neg, curvature_neg] = getMomentCurvature(Section, N_partitions);
+% Mn, phiMn, tonf-m
+% Pn, phiPn, tonf
 
+% plot Moment Curvature Diagram
+% Solo temporalmente
+% ecc_old = Section.ecc;
+% Section.ecc = [ec_min; ec_max; 5];
+[M, curvature, c, M_neg, curvature_neg, c_neg] = getMomentCurvature(Section, N_partitions);
+% Section.ecc = ecc_old;
+% M, M_neg, tonf-m
+% curvature, curvature_neg, 1/cm
+% c, c_neg, cm
+
+
+% ID_data = struct();
+% ID_data.M = M;
+% ID_data.curvature = curvature;
+% ID_data.c = c;
+% ID_data.M_neg = M_neg;
+% ID_data.curvature_neg = curvature_neg;
+% ID_data.c_neg = c_neg;
+% ID_data.Section = Section;
+% 
+% createCool3DFigure(ID_data) % I still don't have a name for this function 
+% figure
+% plot3(M(:,1),curvature(:,1), c(:,1))
+% grid on
+% xlabel('Moment [tonf-m]')
+% ylabel('Curvature [1/cm]')
+% zlabel('Neutral axis depth [cm]')
 
 %% Diseño a flexión
 fprintf('-----------------Diseño a flexión-----------------\n')
 fprintf('Cuantía------------------------------------------\n')
-rho_l = sum(as)/ag;
-rho_l_min = 2.5/1000;
+rho_l = sum(as)/ag; % -
+rho_l_min = 2.5/1000; % -
 if rho_l > rho_l_min
     fprintf('Cuantía rho_l = %.4f > rho_l_min = %.4f OK\n',rho_l,rho_l_min)
 else
@@ -152,172 +183,101 @@ if s < s_max
 else
     fprintf('s = %.1f > s_max = %.1f NO OK\n',s,s_max)
 end
+fprintf('Pu_max------------------------------------------\n')
+Pu_lim = 0.35*ag*fc/1000; % tonf
+Pu_max = max(Pu_); % tonf
+if Pu_max < Pu_lim
+    fprintf('Pu_max = %.0f < Pu_lim = 0.35Agf = %.1f OK\n',Pu_max,Pu_lim)
+else
+    fprintf('Pu_max = %.0f > Pu_lim = 0.35Agfc = %.1f NO OK\n',Pu_max,Pu_lim)
+end
 
-% %% Display
-% fprintf('-----------Wall Design-----------\n')
-% fprintf('Note that this Wall is a T-Shaped Wall\n\n')
-% fprintf('-----------Flexure and Axial Design-----------\n')
-% fprintf('\nArmadura dispuesta-----------\n')
-% for i = 1:length(nBars)
-%     fprintf('Refuerzo %.0f: %.0fphi%.0f + %.0fphi%.0f a %.0f del top, area = %.2f [cm^2]\n',i, nBars(i,1), diams(1),nBars(i,2), diams(2), d(i), as(i))
-% end
-% % Check Geomería
-% 
-% % Check Rango Cuantia
-% fprintf('\ncheck cuantia_min > 0.0025-----------\n')
-% cuantia = sum(as)/(b*h);
-% if cuantia > 0.0025
-%     fprintf('Cuantia = %.4f OK\n', cuantia);
-% else
-%     fprintf('Cuantia = %.2f NO OK\n', cuantia);
-% end
-% 
-% % check hx
-% fprintf('\nCheck espaciamiento barras longitudinales-----------\n')
-% esp_long = max(diff(d));  % como es simétrica aplica para ambos sentidos
-% if esp_long < 15
-%     fprintf('esp_long = %0.2f [cm] < 15[cm] OK\n',esp_long)
-% else
-%     fprintf('esp_long = %0.2f [cm] > 15[cm] NO OK\n',esp_long)
-% end
-% 
-% %check resistencia
-% fprintf('\nCheck resistencia-----------\n')
-% if phiMn_col > max(abs(Mu_))
-%     fprintf('phiMn = %0.2f [tonf] > Mu = %.02f[tonf] OK\n',phiMn_col, max(abs(Mu_)))
-% else
-%     fprintf('phiMn = %0.2f [tonf] < Mu = %.02f[tonf] NO OK\n',phiMn_col, max(abs(Mu_)))
-% end
-% %% Diseño al corte
-% fprintf('\n\n-----------DISEÑO CORTE-----------\n\n')
-% 
-% % Inputs
-% h_col = 500; % cm % Altura de la columna
-% phi_shear = 0.6; % porque corte viene del análisis
-% Vu_design = 3.07; % tonf
-% Vsismico = 0.797; %tonf
-% fprintf('Vu = %.2f [tonf]\n', Vu_design)
-% fprintf('Vsismico = %.2f [tonf]\n', Vsismico)
-% 
-% % Vc 
-% Vc_0 = 0; % si quiero Vc = 0, poner Vc_0=1; si quiero Vc =0.53..., usar Vc_0 = 0
-% if Vsismico>Vu_design/2 && max(abs(Pu_))<= (b*h)*fc/20
-%     Vc = 0;
-%     fprintf('Vc = 0 [tonf]\n')
-% else
-%     Vc = 0.53*sqrt(fc)*b*d_/1000;
-%     fprintf('Vc = %.2f [tonf]\n',Vc)
-% end
-% 
-% if Vc_0 == 1
-%     fprintf('Vamos a ocupar Vc = 0[tonf]\n')
-%     Vc = 0;
-% end
-% 
-% % Steel
-% Vs_req = Vu_design/phi_shear - Vc; % tonf
-% Av_s_req = Vs_req*1000/(fy*d_); % cm^2/cm
-% Av_s_min = max(0.25*sqrt(fc)*b/fy,3.5*b/fy);
-% fprintf('Vs_req = %.2f [tonf]\n',Vs_req)
-% fprintf('Av_s_req = %.3f [cm2/cm]\n', Av_s_req)
-% fprintf('Av_s_min = %.3f [cm2/cm]\n', Av_s_min)
-% 
-% %%%% CONFIGURACIÓN ARMADURA Armadura
-% estribos = 1;
-% trabas = 1;
-% nbarras = 2*estribos + 1*trabas;
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%% Av_s_buscar
-% Av_s_buscar = max(Av_s_req*100/nbarras,Av_s_min*100/nbarras);
-% fprintf('\nBuscar Av_s = %.2f [cm2/m]\n',Av_s_buscar)
-% fprintf('Buscar Av_s = %.4f [cm2/cm]\n\n',Av_s_buscar/100)
-% %%%%%% ELEGIR ACÁ LA ARMADURA, LUEGO DE BUSCAR
-% 
-% phi_estr = 8; %mm
-% s = 12;
-% phi_tr = 8; % mm
-% hx = (max(h,b)-2*r)/2; %% Cambiar la formula o el valor, esta formula es solo porq funciona en esta configuración de estribos + trabas
-% Av_s_tabla = 4.19; %cm2/m
-% % NO modificar acá abajo
-% s_estr = s; % cm
-% s_tr = s; %cm
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% Av_s = nbarras*Av_s_tabla/100; % cm2/cm
-% Av = estribos*2*pi*0.25*(phi_estr/10)^2 + trabas*pi*0.25*(phi_tr/10)^2;
-% s = max(s_tr,s_estr);
-% Vs = fy*d_*Av_s/1000; % tonf
-% 
-% % display dispuesto
-% fprintf('Av_s_dispuesto = %.3f [cm2/m]\n',Av_s*100)
-% fprintf('Av_s_dispuesto = %.3f [cm2/cm]\n',Av_s)
-% fprintf('s_dispuesto = %.2f [cm]\n',s)
-% fprintf('Vs_dispuesto = %.2f [tonf]\n',Vs)
-% 
-% % Check Resistencia
-% fprintf('\nCheck Resistencia-----------\n')
-% Vn = Vs + Vc; % tonf
-% phiVn = phi_shear*Vn;
-% if phiVn > Vu_design
-%     fprintf('phiVn = %.2f [Tonf] > Vu = %.2f [tonf] OK \n',phiVn,Vu_design)
-% else
-%     fprintf('phiVn = %.2f [Tonf] < Vu = %.2f [tonf] NO OK \n',phiVn,Vu_design)
-% end
-% 
-% % Check cuantía
-% fprintf('\nCheck cuantía Av_s-----------\n')
-% if Av_s > Av_s_min && Av_s > Av_s_req
-%     fprintf('Av_s > Av_s_min y req OK\n')
-% else
-%     fprintf('Cuantía NO OK \n')
-% end
-% 
-% % Check Vsmax
-% fprintf('\nCheck Vs_max-----------\n')
-% Vs_max = 2.2*sqrt(fc)*b*d_/1000;
-% if Vs < Vs_max
-%     fprintf('Vs < Vs_max = %.2f[tonf] OK\n',Vs_max)
-% else
-%     fprintf('Vs > Vs_max = %.2f[tonf] NO OK\n',Vs_max)
-% end
-% 
-% % S_max
-% fprintf('\nCheck Espaciamiento s_max-----------\n')
-% % 11.4.5
-% fprintf('11.4.5 - Spacing limits for shear reinforcement\n')
-% Vs_limit_s = 1.1*sqrt(fc)*b*d_/1000; % tonf
-% fprintf('Vs_limit = 1.1sqrt(fc)bd = %.2f [tonf]\n',Vs_limit_s)
-% if Vs < Vs_limit_s % tonf
-%     s_max_1145 = d_/2; % cm
-% else
-%     s_max_1145 = d_/4; % cm
-% end
-% s0 = min(max(10 + (35-hx)/3, 10), 15); % cm
-% s_max_21643 = min([max(h,b)/4, min(h,b)/4, 6*min(diams), s0]); % cm
-% s_max_21352 = min([max(h,b)/2, min(h,b)/2, 8*min(diams), 30]); % cm
-% s_max_710 = min([16*min(diams), 48*min(phi_estr,phi_tr)/10, max(h,b), min(h,b)]); % cm
-% s_max_21645 = min(6*min(diams),15); % cm
-% s1 = min([s_max_21643; s_max_21352; s_max_710; s_max_1145]); % cm
-% s2 = min([s_max_21645: s_max_710, s_max_1145]); %cm
-% l0 = max([h; b; h_col/6; 45]);
-% fprintf('l0 = %.1f [cm]\n',l0)
-% fprintf('s1 = %.3f [cm]\n',s1)
-% fprintf('s2 = %.3f [cm]\n',s2)
-% 
-% if s < s2
-%     fprintf('s = %.2f [cm] < s2 = %.2f [cm]  OK\n',s,s2)
-% else
-%     fprintf('s = %.2f [cm] > s2 = %.2f [cm]  NO OK\n',s,s2)
-% end
-% if s < s1
-%     fprintf('s = %.2f [cm] < s1 = %.2f [cm]  OK \n',s,s1)
-% else
-%     fprintf('s = %.2f [cm] > s1 = %.2f [cm]  NO OK\n',s,s1)
-% end
-% 
-% % A disponer
-% s1_disp = min(s, redondearEsp(s1));
-% s2_disp = min(s, redondearEsp(s2));
-% [l0_dispuesto,nl0] = l0_dispuestoFunc(l0, s1_disp);
-% fprintf('Se dispondrán E%.0fphi%.0f@%.0f + TRphi%.0f@%.0f fuera de l0\n',estribos, phi_estr,s2_disp,phi_tr,s2_disp)
-% fprintf('Dentro de l0=%.0f [cm] se dispondrán %.0f refuerzos E%.0fphi%.0f@%.0f + TRphi%.0f@%.0f\n', l0_dispuesto, nl0, estribos, phi_estr, s1_disp, phi_tr, s1_disp)
+%% Demanda de curvatura
+fprintf('-----------------Demanda de curvatura-----------------\n')
+fprintf('Curvatura mínima al 0.008------------------------------------------\n')
+h_w = 2190; % cm    % distance from the critical section to the top of the building
+l_w = sum(h); % cm
+phi_u = 2*du/(h_w*l_w)*100; % 1/m
+fprintf('phi_u = 2du/(hwlw) = %.6f [1/m] \n',phi_u)
+c_pos = max(c(:,end)); %  cm
+c_neg_ = max(abs(c_neg(:,end))); % cm
+ec_demanda_pos = phi_u/100*c_pos;
+ec_demanda_neg = phi_u/100*c_neg_;
+
+if ec_demanda_pos < 0.008
+    fprintf('ec_demandado_pos = phi_u*c = %.4f < 0.008 OK\n', ec_demanda_pos)
+else
+    fprintf('ec_demandado_pos = phi_u*c = %.4f > 0.008 NO OK \n', ec_demanda_pos)
+    fprintf('por lo tanto se requiere elemento de borde "abajo"\n')
+end
+
+if ec_demanda_neg < 0.008
+    fprintf('ec_demandado_neg = phi_u*c = %.4f < 0.008 OK\n', ec_demanda_neg)
+else
+    fprintf('ec_demandado_neg = phi_u*c = %.4f > 0.008 NO OK \n', ec_demanda_neg)
+    fprintf('por lo tanto se requiere elemento de borde "arriba"\n')
+end
+
+% En el gráfico que se va a generar, se ocupa ec_último = 0.008, si la 
+% curva NO supera las líneas (horizontalmente), entonces tiene que cambiar 
+% la disposición del refuerzo, si la supera, entonces se podría necesitar
+% elemento de borde en función del siguiente gráfico (siguiente
+% comentario). Si no lo supera, entonces, hay que agregarle, si lo supera,
+% entonces no hay que hacer nada
+ec_min_2 = 0.0001;
+ec_max_2 = 0.008;
+n_ec_2 = n_ec;
+Section2 = Section;
+Section2.ecc = [ec_min_2; ec_max_2; n_ec_2];
+[M_2, curvature_2, c_2, M_neg_2, curvature_neg_2, c_neg_2] = getMomentCurvature(Section2, 1);
+hold on
+xline(phi_u,'--r', '$$\phi_u$$', 'Interpreter', 'latex', 'fontsize', 20,'linewidth', 3)
+xline(-phi_u,'--r', '$$-\phi_u$$', 'Interpreter', 'latex', 'fontsize', 20, 'linewidth', 3)
+hold off
+legend(sprintf('P_u = %.1f [tonf]', max(Pu_)));
+
+
+% En el gráfico que se va a generar, se ocupa ec_último = 0.003, si la
+% curva NO supera los \phi_u (lineas verticales), entonces se necesita un
+% elemento de borde en ese sentido para cubrir lo que falta para alcanzar
+% ec = 0.008 de deformación unitaria de compresión en el hormigón.
+% Si lo supera, entonces no se necesita elemento de borde.
+colorPalette = colormap(winter(2));
+colorPalette = colorPalette / max(colorPalette(:));
+figure2 = figure('InvertHardcopy','off','Color',[1 1 1],'position',[680 341 968 637]);
+axes2 = axes('Parent',figure2);
+hold on
+color_alea = colorPalette(2,:);
+plot([0; curvature(:,end)*100], [0; M(:,end)], 'linewidth', 3, 'Color', color_alea)
+plot([0; curvature_neg(:,end)*100], [0; M_neg(:,end)], 'linewidth', 3, 'Color', color_alea)
+xline(phi_u,'--r', '$$\phi_u$$', 'Interpreter', 'latex', 'fontsize', 20,'linewidth', 3)
+xline(-phi_u,'--r', '$$-\phi_u$$', 'Interpreter', 'latex', 'fontsize', 20, 'linewidth', 3)
+yline(0)
+xline(0)
+hold off
+xlabel('Curvature (phi) [1/m]')
+ylabel('Moment (M) [tonf]')
+grid on
+box on
+set(axes2, 'FontSize', 20);
+legend(sprintf('P_u = %.1f [tonf]', max(Pu_)));
+title('ec_{max} = 0.003')
+
+% Hay un c_lim que me limita el máximo 'c' que puedo obtener, si este 'c'
+% supera c_lim, entonces se necesita confinar un mínimo largo de c_c = c-c_lim
+% (además hay otras consideraciones) que pueden agrandar este c_c
+fprintf('Elemento de Borde-------------------------------\n')
+c_lim = l_w/(600*(max([du/h_w; 0.007]))); % cm
+if c_pos >= c_lim 
+    fprintf('c_pos = %.1f [cm] > c_lim = %.1f[cm], hay que confinar arriba c_c = c-c_lim = %.0f [cm]\n',c_pos,c_lim, c_pos - c_lim)
+else
+    fprintf('c_pos = %.1f [cm] < c_lim = %.1f[cm], no hay que confinar arriba c_c = c-c_lim = %.0f [cm]\n',c_pos,c_lim, c_pos - c_lim)
+end
+
+if c_neg_ >= c_lim 
+    fprintf('c_neg = %.1f [cm] > c_lim = %.1f[cm], hay que confinar abajo c_c = c-c_lim = %.0f [cm]\n',c_neg_, c_lim, c_neg_ - c_lim)
+else
+    fprintf('c_neg = %.1f [cm] < c_lim = %.1f[cm], no hay que confinar abajo c_c = c-c_lim = %.0f [cm]\n',c_neg_, c_lim, c_neg_ - c_lim)
+end
+
+%% Diseño de elemento de borde
