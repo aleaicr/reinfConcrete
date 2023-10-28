@@ -147,7 +147,6 @@ Section.Pu_ = Pu_;
 % curvature, curvature_neg, 1/cm
 % c, c_neg, cm
 
-
 % ID_data = struct();
 % ID_data.M = M;
 % ID_data.curvature = curvature;
@@ -279,10 +278,3 @@ if c_neg_ >= c_lim
 else
     fprintf('c_neg = %.1f [cm] < c_lim = %.1f[cm], no hay que confinar abajo c_c = c-c_lim = %.0f [cm]\n',c_neg_, c_lim, c_neg_ - c_lim)
 end
-
-%% Diseño de elemento de borde
-muvu = 
-
-h_be = max(lw,4muvu);
-% Word (hice los cálculos a mano)
-
