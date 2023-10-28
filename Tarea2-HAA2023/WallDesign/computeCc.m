@@ -52,20 +52,20 @@ if isa(c,'double')
     % Determinar todas las areas que contribuyen a Cc
     if isempty(h_inf) % beta1c está en primera sección
         area = beta1c*b(1); % cm2
-        area2 = [beta1c b(1)];
+        dimensions_Cc_figure = [beta1c b(1)];
     elseif isempty(h_sup) % beta1c es mayor a la altura de la sección
         area = sum(b.*h); % cm2
-        area2 = [h b]; 
+        dimensions_Cc_figure = [h b]; 
     else % beta1c está dentro de la sección
         area = [h(h_<=h_inf).*b(h_<= h_inf); (beta1c-h_(h_==h_inf)).*b(h_==h_sup)]; % cm2
-        area2 = [h(h_<=h_inf) b(h_<= h_inf); (beta1c-h_(h_==h_inf)) b(h_==h_sup)]; % cm cm
+        dimensions_Cc_figure = [h(h_<=h_inf) b(h_<= h_inf); (beta1c-h_(h_==h_inf)) b(h_==h_sup)]; % cm cm
     end
     % Determinar Cc y centroide de Cc
     Cc = 0.85*fc*area; % kgf (vector)
-    aux = area2(:,1);
+    aux = dimensions_Cc_figure(:,1); % column 1: heights, columns 2: widths
     aux(end) = [];
     aux = [0; cumsum(aux)];
-    h_centroids = area2(:,1)/2 + aux; % cm
+    h_centroids = dimensions_Cc_figure(:,1)/2 + aux; % cm
     Cc_centroid = sum(Cc.*h_centroids)/sum(Cc); % cm
 end
 

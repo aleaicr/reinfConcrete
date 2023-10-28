@@ -20,7 +20,6 @@ function [Cc, Cc_centroid] = computeCc(b, h, fc, c, beta1_val)
 % * This function solves for symbolic 'c' or for a given value of 'c'
 % * if 'c' is symbolic, then Cc (the vector) will contain the contribution
 % to Cc of each concrete area
-% * Centroid is not correct
 
 %% Previous Calcs
 h_ = cumsum(h);                                                             % Vector de suma acumulada de h 
@@ -53,19 +52,20 @@ if isa(c,'double')
     % Determinar todas las areas que contribuyen a Cc
     if isempty(h_inf) % beta1c está en primera sección
         area = beta1c*b(1); % cm2
+        dimensions_Cc_figure = [beta1c b(1)];
     elseif isempty(h_sup) % beta1c es mayor a la altura de la sección
         area = sum(b.*h); % cm2
+        dimensions_Cc_figure = [h b]; 
     else % beta1c está dentro de la sección
         area = [h(h_<=h_inf).*b(h_<= h_inf); (beta1c-h_(h_==h_inf)).*b(h_==h_sup)]; % cm2
+        dimensions_Cc_figure = [h(h_<=h_inf) b(h_<= h_inf); (beta1c-h_(h_==h_inf)) b(h_==h_sup)]; % cm cm
     end
     % Determinar Cc y centroide de Cc
     Cc = 0.85*fc*area; % kgf (vector)
-    h_newFigure = h(1:length(Cc));
-    h_newFigure(end) = beta1c - sum(h_newFigure(1:(end-1)));
-    aux = h_newFigure;
+    aux = dimensions_Cc_figure(:,1); % column 1: heights, columns 2: widths
     aux(end) = [];
     aux = [0; cumsum(aux)];
-    h_centroids = h_newFigure/2 + aux; % cm
+    h_centroids = dimensions_Cc_figure(:,1)/2 + aux; % cm
     Cc_centroid = sum(Cc.*h_centroids)/sum(Cc); % cm
 end
 
