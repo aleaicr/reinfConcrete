@@ -1,5 +1,9 @@
 # reinfConcrete
-This repository contain scripts for the design of reinforced concrete elements according to the current_2023 Chilean Code (DS60 and ACI318-08) in kgf,cm, but in some sections there is also use of ACI318-19. Was created for the course Advanced Reinforced Concrete during 2023 that delves into seismic resistant design.
-- Frame elements (Columns and Beams)
-- Walls (T-shape, but the script allows any desired sectional shape)
+This repository contains scripts for the design of reinforced concrete elements according to the current 2023 Chilean Code (DS60) and ACI318-08, which are expressed in kgf and cm. Additionally, some sections include the use of ACI318-19. It was created for the Advanced Reinforced Concrete course in 2023, focusing on seismic-resistant design.
+
+The repository covers the following elements:
+
+* Frame elements (Columns and Beams)
+* Walls (T-shape, but the script accommodates any desired sectional shape)
+
 
