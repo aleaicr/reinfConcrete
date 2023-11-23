@@ -29,7 +29,7 @@ s = 10; % cm                                                                % Sp
 
 % Reinforcement
 diams = 25;  % mm                                                            % Reinforcement diameter
-nBars = (b-s)/s+1;                                                          % Number of bars
+nBars = (b - s)/s + 1;                                                          % Number of bars
 d = h - r; % cm                                                             % Effective depth
 
 % ecu
@@ -135,10 +135,11 @@ Section.Pu_ = Pu_;
 
 %% get Mn
 Section.N = 0;
-[Mn, phiMn, phi_val, f_steel, Cc, es, c, sigma_Reinf, phi_curvature] = getMn(Section); % kgf - cm
+[Mn, phiMn, phi_val, f_steel, Cc, es, c, sigma_Reinf, phi_curvature] = getMn(Section); % kgf - cm (inputs y otuputs)
 
-Mn = Mn/1000/100/100; % tonf-m / m                                              % Porque b = 100cm = 1m
-phiMn = phiMn/1000/100/100;
+% transform to tonf - m
+Mn = Mn/1000/100; % tonf-m/m                                              % Porque b = 100cm = 1m
+phiMn = phiMn/1000/100; % tonf-m/m
 
 fprintf('Mn = %.3f [tonf-m/m]\n', Mn)
 fprintf('phiMn = %.3f [tonf-m/m]\n', phiMn)

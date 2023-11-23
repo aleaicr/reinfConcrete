@@ -34,6 +34,9 @@ d = h - r; % cm                                                             % Ef
 % ecu
 ecu = 0.003;
 
+% Columns IDs
+columnsIDs = [17; 15; 16; 32; 18; 31; 19; 13; 14; 30];
+
 %% Previous Calculations
 % load internal forces
 % [~, ~, ~, internalForcesData] = readAnalysisResults(internalForcesFileName, Piers, stories);
@@ -43,12 +46,8 @@ ecu = 0.003;
 % Pu_ = zeros(length(Mu_),1); % tonf                                           % Neglecting the axial load in the flexural design
 Pu_ = 0;
 Mu_ = 0;
+Pu_ = 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%% VOY A CREAR UNA FUNCIÓN PARA EXTRAER LAS FUERZAS INTERNAS
-%%%%%%%%%%%%%%%%% DE TODAS LAS COLUMNAS, MIENTRAS TOMAR COMO 0
-%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Reinf Layers
 nLayers = size(diams);                                                      % Number of Layers of longitudinal reinforcement
