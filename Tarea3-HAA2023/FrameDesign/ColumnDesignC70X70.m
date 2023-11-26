@@ -132,7 +132,7 @@ Section.Pu_ = Pu_;
 
 %% DISEÑO FRAME
 %% Display
-fprintf('-----------Diseño C65/65-----------\n')
+fprintf('-----------Diseño C70/70-----------\n')
 fprintf('-----------Diseño Flexo-Compresión-----------\n')
 % Check Acero requerido
 % Mu = max(max(abs(Mu_)),max(abs(Mu2_)));
@@ -193,7 +193,7 @@ fprintf('\n\n-----------DISEÑO CORTE-----------\n\n')
 
 % Inputs
 h_col = 130; % cm % Altura de la columna
-phi_shear = 0.75; % porque corte viene del análisis
+phi_shear = 0.6; % porque corte viene del análisis
 Vu_design = max(abs(Vu_)); % tonf
 fprintf('Vu = %.2f [tonf]\n', Vu_design)
 
@@ -259,6 +259,12 @@ if Av_s > Av_s_min && Av_s > Av_s_req
 else
     fprintf('Cuantía NO OK \n')
 end
+
+% Check cuantía mínima
+rho_min_1 = 0.09*fc/fy;
+rho_min_2 = 0.3*fc/fy*(ag/(h-r)^2-1);
+rho_min = min([rho_min_1;rho_min_2]);
+fprintf('Avs_min_21.6.4.4 = %.4f\n y rho_disp = %.4f',rho_min, Av_s)
 
 % Check Vsmax
 fprintf('\nCheck Vs_max-----------\n')

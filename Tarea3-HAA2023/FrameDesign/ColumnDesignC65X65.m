@@ -95,7 +95,7 @@ beta1_val = beta1(fc);
 %     intLoads = [intLoads; internalLoads(i).frameTable{:,7:12}];             % Can't find another way to store all matrices
 % end
 % intLoads(1, :) = [];                                                        % Delete first row
-intLoads = readmatrix('65x65LRFDloads.csv');                                % Ya lo hice, dejé comentado porq se demora mucho en leer todas
+intLoads = readmatrix('C65X65Loads.csv');                                % Ya lo hice, dejé comentado porq se demora mucho en leer todas
 Mu_ = [intLoads(:, 6); intLoads(:, 5)]; % tonf-m
 Pu_ = -[intLoads(:,1); intLoads(:,1)]; % tonf-m
 Vu_ = [intLoads(:,3); intLoads(:,2)]; % tonf-m
@@ -146,18 +146,18 @@ fprintf('\nArmadura dispuesta-----------\n')
 for i = 1:length(nBars)
     fprintf('Refuerzo %.0f: %.0fphi%.0f a %.0f del top, area = %.2f [cm^2]\n',i,nBars(i),diams(i)*10,d(i), as(i))
 end
-% Check Geomería
-fprintf('\nCheck geometría-----------\n')
-if min(b,h) > 30
-    fprintf('b > 30cm OK\n')
-else
-    fprintf('b < 30cm NO OK\n')
-end
-if min(b,h)/max(b,h) > 0.
-    fprintf('b/h > 0.4 OK\n')
-else
-    fprintf('b/h < 0.4 NO OK\n')
-end
+% % Check Geomería
+% fprintf('\nCheck geometría-----------\n')
+% if min(b,h) > 30
+%     fprintf('b > 30cm OK\n')
+% else
+%     fprintf('b < 30cm NO OK\n')
+% end
+% if min(b,h)/max(b,h) > 0.
+%     fprintf('b/h > 0.4 OK\n')
+% else
+%     fprintf('b/h < 0.4 NO OK\n')
+% end
 
 % Check Rango Cuantia
 fprintf('\ncheck cuantia entre 0.01 y 0.06-----------\n')
@@ -170,7 +170,7 @@ end
 
 % Cuantia minima
 fprintf('\ncheck cuantia mayor a minima-----------\n')
-As_min = min([0.005; max(0.8*sqrt(fc)/fy*b*d_,14/fy*b*d_)]);
+As_min = min([0.005*b*d_; max(0.8*sqrt(fc)/fy*b*d_,14/fy*b*d_)]);
 cuantia_min = As_min/(b*h);
 if cuantia > cuantia_min
     fprintf('Cuantia mayor a cuantia minima = %0.4f OK\n',cuantia_min)
@@ -259,6 +259,16 @@ if Av_s > Av_s_min && Av_s > Av_s_req
     fprintf('Av_s > Av_s_min y req OK\n')
 else
     fprintf('Cuantía NO OK \n')
+end
+
+% Check cuantía mínima
+rho_min_1 = 0.09*fc/fy;
+rho_min_2 = 0.3*fc/fy*(ag/(h-r)^2-1);
+rho_min = min([rho_min_1;rho_min_2]);
+if rho_min < Av_s
+    fprintf('Avs_min_21.6.4.4 = %.4f\n < rho_disp = %.4f OK \n',rho_min, Av_s)
+else
+    fprintf('Avs_min_21.6.4.4 = %.4f\n > rho_disp = %.4f NO OK \n',rho_min, Av_s)
 end
 
 % Check Vsmax
