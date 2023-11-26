@@ -24,32 +24,32 @@ Es = 2.1*10^6; %kgf/cm^2                                                    % St
 lambda = 1;    % lambda*fy (puede tomar 1 o 1.25 si quiero calcular Mpr)    % No confundir con lambda de la ACI318 el cual corresponde a factor de reducción por hormigón "ligero" (lightweight)
 
 % Section geometry
-b = 65; % cm                                                         % Concrete section zones widths
-h = 65; % cm                                                         % Concrete section zones heights
+b = 70; % cm                                                                % Concrete section zones widths
+h = 70; % cm                                                                % Concrete section zones heights
 r = 5;
 
 % Reinforcement (from top to bottom) ITERATION 2
-diams = [8; 8; 8; 8; 8; 8];   % mm                                          % diameters of each type of bar
-nBars = [6; 2; 2; 2; 2; 6];                                                 % number of bars of each type in each layer
+diams = [8; 8; 8; 8; 8; 8; 8];   % mm                                       % diameters of each type of bar
+nBars = [7; 2; 2; 2; 2; 2; 7];                                              % number of bars of each type in each layer
 
 % ecu
 ecu = 0.003;
 
 % Strain range for interaction diagram
-es_min = -0.0005;                                                          % es mínimo a analizar
-es_max = 1;                                                               % es máximo a analizar
-n_es = 50000;                                                                % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
+es_min = -0.0005;                                                           % es mínimo a analizar
+es_max = 1;                                                                 % es máximo a analizar
+n_es = 50000;                                                               % Número de puntos dentrod el diagrama de interacciones (notar que no se distribuyen uniformemente)
 
 % Columns IDs
-columnsIDs = [17; 32; 18; 31; 19; 30]; % 65x65
-% columnsIDs = [15; 16; 13 14]; % 70x70
+% columnsIDs = [17; 32; 18; 31; 19; 30]; % 65x65
+columnsIDs = [15; 16; 13; 14]; % 70x70
 
 % Dir. of the SAP200 results file
 fileDir = '../ModeloconVF.xlsx';
 
 %% Previous calculations
 % Reinf Layers
-nLayers = length(diams);                                                      % Number of Layers of longitudinal reinforcement
+nLayers = length(diams);                                                    % Number of Layers of longitudinal reinforcement
 layers = (1:1:nLayers).';                                                   % Layer IDs
 fy = lambda*fy;
 
@@ -84,18 +84,18 @@ beta1_val = beta1(fc);
 
 %% Loads
 % get all internal forces for LRFD cases for each column
-loadComb = 'LRFD';
-for i = 1: length(columnsIDs)
-    [internalLoads, allTable] = getFrameLoads(fileDir, columnsIDs, loadComb);
-end
-
-% All columns internal loads in one matrix
-intLoads = zeros(1,6);
-for i = 1:length(internalLoads)
-    intLoads = [intLoads; internalLoads(i).frameTable{:,7:12}];             % Can't find another way to store all matrices
-end
-intLoads(1, :) = [];                                                        % Delete first row
-% intLoads = readmatrix('65x65LRFDloads.csv');                                % Ya lo hice, dejé comentado porq se demora mucho en leer todas
+% loadComb = 'LRFD';
+% for i = 1: length(columnsIDs)
+%     [internalLoads, allTable] = getFrameLoads(fileDir, columnsIDs, loadComb);
+% end
+% 
+% % All columns internal loads in one matrix
+% intLoads = zeros(1,6);
+% for i = 1:length(internalLoads)
+%     intLoads = [intLoads; internalLoads(i).frameTable{:,7:12}];             % Can't find another way to store all matrices
+% end
+% intLoads(1, :) = [];                                                        % Delete first row
+intLoads = readmatrix('C70x70Loads.csv');                                % Ya lo hice, dejé comentado porq se demora mucho en leer todas
 Mu_ = [intLoads(:, 6); intLoads(:, 5)]; % tonf-m
 Pu_ = -[intLoads(:,1); intLoads(:,1)]; % tonf-m
 Vu_ = [intLoads(:,3); intLoads(:,2)]; % tonf-m
@@ -130,7 +130,6 @@ Section.Pu_ = Pu_;
 %% get Diagrams
 [Mn, Pn, phiMn, phiPn] = getInteractionDiagram(Section);
 
-
 %% DISEÑO FRAME
 %% Display
 fprintf('-----------Diseño C65/65-----------\n')
@@ -144,7 +143,7 @@ fprintf('\nArmadura requerida As_req = %.2f [cm2]\n', As_req)
 
 fprintf('\nArmadura dispuesta-----------\n')
 for i = 1:length(nBars)
-    fprintf('Refuerzo %.0f: %.0fphi%.0f a %.0f del top, area = %.2f [cm^2]\n',i,nBars(i),diams(i)*10,d(i), as(i))
+    fprintf('Refuerzo %.0f: %.0fphi%.0f a %.0f del top, area = %.2f [cm^2]\n',i,nBars(i),diams(i),d(i), as(i))
 end
 % Check Geomería
 fprintf('\nCheck geometría-----------\n')
@@ -222,10 +221,10 @@ fprintf('Buscar Av_s = %.4f [cm2/cm]\n\n',Av_s_buscar/100)
 %%%%%% ELEGIR ACÁ LA ARMADURA, LUEGO DE BUSCAR
 
 phi_estr = 8; %mm
-s = 12;
+s = 10;
 phi_tr = 8; % mm
 hx = (max(h,b)-2*r)/2; %% Cambiar la formula o el valor, esta formula es solo porq funciona en esta configuración de estribos + trabas
-Av_s_tabla = 4.19; %cm2/m
+Av_s_tabla = 5.03; %cm2/m
 % 8@14 = 3.59; 8@12= 4.19; 8@10=5.03, 8@20=2.51
 % NO modificar acá abajo
 s_estr = s; % cm
