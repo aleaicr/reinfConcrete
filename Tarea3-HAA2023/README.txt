@@ -1,0 +1,8 @@
+- Correr dimensionamiento.m para verificar el dimensionamiento de la fundación, tiene como input el nombre del archivo excel que entrega SAP2000
+- Para el diseño:
+      - ShellDesign/FoundationDesign.m verifica la armadura a flexión y verifica a corte de la fundación (la losa)
+      - FrameDesign verifica la armadura a flexión y a corte de las columnas
+		- C65X65 en ColumnDesignC65X65.m
+		- C70X70 en ColumnDesignC70X70.m
+- Los excels únicamente tienen la información de los modelos, no tiene desarrollo de dimensionamiento ni de diseño.
+- Al correr los archivos matlab entregan TODO lo que se puso en la memoria de cálculo
