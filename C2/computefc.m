@@ -7,12 +7,12 @@ function fc = comptuefc(concrete, ec, alternative)
   % alternative: char with the name of the method to estimate the stress ('mander', '...')
 
   % Choose alternative
-  if isequal(loswer(alternative), 'mander')
-  
+  if isequal(lower(alternative), 'mander')
+    
   elseif isequal(lower(alternative), '')
-
+    
   else
-  
+
   end
 end
 
