@@ -1,9 +1,12 @@
 # reinfConcrete
-This repository contains scripts for the design of reinforced concrete elements according to the current 2023 Chilean Code (DS60) and ACI318-08, which are expressed in kgf and cm. Additionally, some sections include the use of ACI318-19. It was created for the Advanced Reinforced Concrete course in 2023, focusing on seismic-resistant design.
+This repository was created for the ```Advanced Reinforced Concrete``` course during 2023-2. This course is focused on seismic-resistant design of reinforced concrete elements according to the 2023 Chilean Code (DS60) and ACI318-08. 
 
-The repository covers the following elements:
+Notes:
+- Variables are expressed in kgf and cm.
+- Some sections include the use of ACI318-19.
+- The repository covers the following elements:
+  * Frame elements (square columns and beams)
+  * Wall elements (any sectional shape)
 
-* Frame elements (Columns and Beams)
-* Walls (T-shape, but the script accommodates any desired sectional shape)
-
+I would like to rewrite this repo but using python.
 
