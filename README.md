@@ -1,5 +1,5 @@
 # reinfConcrete
-This repository was created for the ```Advanced Reinforced Concrete``` course during 2023-2. The course focuses on the seismic-resistant design of reinforced concrete elements following the 2023 Chilean Code (DS60) and ACI318-08.
+This repository was created for the ```Advanced Reinforced Concrete``` course during 2023-2. The course focuses on the seismic-resistant design of reinforced concrete elements following the 2023 Chilean Code (DS60) and ACI318-08/14/19.
 
 Notes:
 - Variables are expressed in kilograms-force (kgf) and centimeters (cm).
